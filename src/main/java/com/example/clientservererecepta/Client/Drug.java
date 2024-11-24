@@ -1,12 +1,14 @@
-package com.example.clientservererecepta;
+package com.example.clientservererecepta.Client;
 
 import java.math.BigDecimal;
 
 public class Drug {
+    private final int id;
     private final String name;
     private final String description;
     private final BigDecimal price;
-    public Drug (String name, String description, BigDecimal price) {
+    public Drug (int id, String name, String description, BigDecimal price) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;

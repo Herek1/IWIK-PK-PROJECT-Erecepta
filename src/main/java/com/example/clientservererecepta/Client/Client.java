@@ -1,4 +1,4 @@
-package com.example.clientservererecepta;
+package com.example.clientservererecepta.Client;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -19,8 +19,6 @@ public class Client extends Application {
 
     private PrintWriter out;
     private TextArea messagesArea;
-    private TextField inputField;
-
     private TextField login;
     private TextField password;
 
@@ -28,8 +26,10 @@ public class Client extends Application {
     public void start(Stage stage) {
         login = new TextField();
         login.setPromptText("Login");
+
         password = new TextField();
         password.setPromptText("Password");
+
         messagesArea = new TextArea();
         messagesArea.setEditable(false);
         Button sendButton = new Button("Login");
@@ -41,7 +41,7 @@ public class Client extends Application {
             }
         });
 
-        VBox layout = new VBox(10, messagesArea, login, password, sendButton);
+        VBox layout = new VBox(10, messagesArea,login, password, sendButton);
         Scene scene = new Scene(layout, 400, 300);
 
         stage.setTitle("Chat Client");

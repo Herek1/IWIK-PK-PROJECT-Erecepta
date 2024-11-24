@@ -1,4 +1,4 @@
-package com.example.clientservererecepta;
+package com.example.clientservererecepta.Server;
 
 import java.io.*;
 import java.net.*;
@@ -50,10 +50,11 @@ public class Server {
             //DB lookup
             HashMap<String, String> testList = new HashMap<String, String>();
             testList.put("test;admin", "admin");
-            testList.put("test;doctor", "doctor");
+            testList.put("login;haslo", "doctor");
             testList.put("test;pharmacist", "pharmacist");
             testList.put("test;carrier", "carrier");
             return testList.get(inputLine);
         }
     }
 }
+    

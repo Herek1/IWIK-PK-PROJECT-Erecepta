@@ -1,12 +1,14 @@
-package com.example.clientservererecepta;
+package com.example.clientservererecepta.Client;
 
 import javafx.scene.layout.VBox;
 
 public abstract class User {
+    private static int id;
     private static String name;
     private static String surname;
 
     public User(String name, String surname) {
+
         User.name = name;
         User.surname = surname;
     }

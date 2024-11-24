@@ -1,18 +1,18 @@
-package com.example.clientservererecepta;
+package com.example.clientservererecepta.Client;
 
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 
-public class Doctor extends User {
-    public Doctor(String name, String surname) {
+public class Pharmacist extends User {
+    public Pharmacist(String name, String surname) {
         super(name, surname);
     }
 
     @Override
     public VBox generateLayout() {
-        Label welcomeLabel = new Label("Welcome, Doctor " + toString());
-        Button managePatientsButton = new Button("Add receipe");
+        Label welcomeLabel = new Label("Welcome, Pharmacist " + toString());
+        Button managePatientsButton = new Button("Manage receipes");
         Button logoutButton = new Button("Logout");
 
         // Return a specific layout for the doctor.

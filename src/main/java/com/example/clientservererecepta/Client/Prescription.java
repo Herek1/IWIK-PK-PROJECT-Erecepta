@@ -1,22 +1,27 @@
-package com.example.clientservererecepta;
+package com.example.clientservererecepta.Client;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class Recipe {
+public class Prescription {
     private final int code;
     private final String date;
     private final String patient;
-    private final List<Drug> drugList;
+    private List<Drug> drugList;
 
     private final int lastId = 34567;
 
-    public Recipe(User ignoreidUser, List<Drug> drugList) {
+    public Prescription(User ignoreidUser) {
         this.code = lastId;
         this.date = new SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().getTime());
         this.patient = User.getName() + " " + User.getSurname();
-        this.drugList = drugList;
+        this.drugList = new ArrayList<>();
+    }
+
+    public void addDrug(Drug drug){
+        drugList.add(drug);
     }
     @Override
     public String toString() {
