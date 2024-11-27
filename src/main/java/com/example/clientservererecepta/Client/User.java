@@ -7,8 +7,8 @@ public abstract class User {
     private static String name;
     private static String surname;
 
-    public User(String name, String surname) {
-
+    public User(int id, String name, String surname) {
+        User.id = id;
         User.name = name;
         User.surname = surname;
     }

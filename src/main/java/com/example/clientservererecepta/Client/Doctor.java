@@ -5,8 +5,8 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 
 public class Doctor extends User {
-    public Doctor(String name, String surname) {
-        super(name, surname);
+    public Doctor(int id, String name, String surname) {
+        super(id, name, surname);
     }
 
     @Override

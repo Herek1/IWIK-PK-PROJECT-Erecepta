@@ -49,10 +49,8 @@ public class Server {
         private String checkUser(String inputLine) {
             //DB lookup
             HashMap<String, String> testList = new HashMap<String, String>();
-            testList.put("test;admin", "admin");
-            testList.put("login;haslo", "doctor");
-            testList.put("test;pharmacist", "pharmacist");
-            testList.put("test;carrier", "carrier");
+            String testUser ="{ \"id\": 1, \"name\": \"John\", \"surname\": \"Doe\", \"role\": \"Patient\" }";
+            testList.put("test;admin", testUser);
             return testList.get(inputLine);
         }
     }

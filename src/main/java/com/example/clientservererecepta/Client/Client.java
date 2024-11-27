@@ -1,5 +1,9 @@
 package com.example.clientservererecepta.Client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -24,25 +28,8 @@ public class Client extends Application {
 
     @Override
     public void start(Stage stage) {
-        login = new TextField();
-        login.setPromptText("Login");
-
-        password = new TextField();
-        password.setPromptText("Password");
-
-        messagesArea = new TextArea();
-        messagesArea.setEditable(false);
-        Button sendButton = new Button("Login");
-
-        sendButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                sendMessage();
-            }
-        });
-
-        VBox layout = new VBox(10, messagesArea,login, password, sendButton);
-        Scene scene = new Scene(layout, 400, 300);
+        VBox defaultLayout = generateDefaultLayout();
+        Scene scene = new Scene(defaultLayout, 400, 300);
 
         stage.setTitle("Chat Client");
         stage.setScene(scene);
@@ -77,14 +64,24 @@ public class Client extends Application {
     }
 
     private void createUserSession(String finalMessage, Stage stage) {
-        User user;
+        User user = null;
 
-        switch (finalMessage) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = null;
+        try {
+            rootNode = objectMapper.readTree(finalMessage);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        String role = rootNode.get("role").asText();
+        System.out.println("test" + role);
+        switch (role) {
             case "doctor":
-                user = new Doctor("temp","temp");
                 break;
             case "pharmacist":
-                user = new Pharmacist("temp","temp");
+                break;
+            case "Patient":
+                user = new Patient(rootNode.get("id").asInt(),rootNode.get("name").asText(),rootNode.get("surname").asText());
                 break;
             default:
                 messagesArea.appendText("failed to log in, try again\n");
@@ -92,17 +89,40 @@ public class Client extends Application {
                 return; // Exit if the type is unknown.
         }
 
-        prepareSession(user, stage);
+        assert user != null; // check if user was generated
+        updateUserSession(stage, user.generateLayout());
     }
 
-    private void prepareSession(User user, Stage stage) {
-        VBox newLayout = user.generateLayout();
+    private void updateUserSession(Stage stage, VBox vBox) {
         //
         Platform.runLater(() -> {
-            Scene sessionScene = new Scene(newLayout, 400, 300);
+            Scene sessionScene = new Scene(vBox, 400, 300);
             stage.setScene(sessionScene); // Update the scene safely on the JavaFX Application Thread.
         });
     }
+
+    private VBox generateDefaultLayout(){
+        login = new TextField();
+        login.setPromptText("Login");
+
+        password = new TextField();
+        password.setPromptText("Password");
+
+        messagesArea = new TextArea();
+        messagesArea.setEditable(false);
+        Button sendButton = new Button("Login");
+
+        sendButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                sendMessage();
+            }
+        });
+
+        VBox layout = new VBox(10, messagesArea,login, password, sendButton);
+        return layout;
+    }
+
 
     private void sendMessage() {
         String loginData = login.getText() + ";" + password.getText();
@@ -110,6 +130,7 @@ public class Client extends Application {
             out.println(loginData);
         }
     }
+
 
     public static void main(String[] args) {
         launch(args);
