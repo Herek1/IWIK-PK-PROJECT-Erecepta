@@ -1,6 +1,7 @@
 package com.example.clientservererecepta.Client;
 
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public abstract class User {
     private static int id;
@@ -22,6 +23,7 @@ public abstract class User {
     }
 
     public abstract VBox generateLayout();
+
 
     @Override
     public String toString() {
