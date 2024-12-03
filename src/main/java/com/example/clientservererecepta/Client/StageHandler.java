@@ -103,7 +103,7 @@ public class StageHandler {
     }
 
     private void sendLoginData() {
-        String loginData = login.getText() + ";" + password.getText();
+        String loginData = "login;"+login.getText() + ";" + password.getText();
         if (!loginData.isBlank()) {
             clientHandler.sendMessage(loginData);
         } else {

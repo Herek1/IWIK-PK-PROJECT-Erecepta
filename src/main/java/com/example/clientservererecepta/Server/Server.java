@@ -14,7 +14,6 @@ public class Server {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("New client connected");
-
                 new Thread(new ClientHandler(clientSocket)).start();
             }
         } catch (IOException e) {
@@ -35,23 +34,16 @@ public class Server {
                     BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                     PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)
             ) {
+                RequestHandler requestHandler = new RequestHandler();
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
                     System.out.println("Received from client: " + inputLine);
-                    String userType = checkUser(inputLine);
-                    out.println(userType);
+                    String response = requestHandler.handle(inputLine);
+                    out.println(response);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-
-        private String checkUser(String inputLine) {
-            //DB lookup
-            HashMap<String, String> testList = new HashMap<String, String>();
-            String testUser ="{ \"id\": 1, \"name\": \"John\", \"surname\": \"Doe\", \"role\": \"Patient\" }";
-            testList.put("test;admin", testUser);
-            return testList.get(inputLine);
         }
     }
 }

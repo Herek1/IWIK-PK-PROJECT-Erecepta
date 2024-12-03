@@ -72,29 +72,51 @@ public class ClientTest extends Application {
             return;
         }
 
+        // Check for status field and handle error message
+        String status = rootNode.path("status").asText();
+        if ("error".equals(status)) {
+            String errorMessage = rootNode.path("message").asText("An unknown error occurred.");
+            showError(errorMessage);
+            return;
+        }
+
+        // Check if the "data" field exists and is an array
+        JsonNode dataNode = rootNode.path("data");
+        if (!dataNode.isArray() || dataNode.size() == 0) {
+            showError("No user data received");
+            return;
+        }
+
+        // Extract the first user record from the "data" array
+        JsonNode userNode = dataNode.get(0);
+
         // Extract user role and other details
-        String role = rootNode.get("role").asText();
-        System.out.println("User role: " + role);
+        String role = userNode.get("user_type").asText();
+        System.out.println("User type: " + role);
 
         switch (role) {
-//            case "doctor":
-//                user = new Doctor(rootNode.get("id").asInt(),
-//                        rootNode.get("name").asText(),
-//                        rootNode.get("surname").asText());
-//                Platform.runLater(() -> stageHandler.switchToRoleView("Doctor"));
-//                break;
+            case "doctor":
+                // Uncomment and implement if Doctor handling is added
+                // user = new Doctor(userNode.get("id").asInt(),
+                //         userNode.get("name").asText(),
+                //         userNode.get("surname").asText());
+                // Platform.runLater(() -> stageHandler.switchToRoleView("Doctor"));
+                break;
 
-//            case "pharmacist":
-//                user = new Pharmacist(rootNode.get("id").asInt(),
-//                        rootNode.get("name").asText(),
-//                        rootNode.get("surname").asText());
-//                Platform.runLater(() -> stageHandler.switchToRoleView("Pharmacist"));
-//                break;
+            case "pharmacist":
+                // Uncomment and implement if Pharmacist handling is added
+                // user = new Pharmacist(userNode.get("id").asInt(),
+                //         userNode.get("name").asText(),
+                //         userNode.get("surname").asText());
+                // Platform.runLater(() -> stageHandler.switchToRoleView("Pharmacist"));
+                break;
 
-            case "Patient":
-                user = new Patient(rootNode.get("id").asInt(),
-                        rootNode.get("name").asText(),
-                        rootNode.get("surname").asText());
+            case "patient":
+                user = new Patient(
+                        Integer.valueOf(userNode.get("id").asText()),
+                        userNode.get("name").asText(),
+                        userNode.get("surname").asText()
+                );
                 User finalUser = user;
                 Platform.runLater(() -> stageHandler.switchToRoleView("Patient", finalUser));
                 break;
