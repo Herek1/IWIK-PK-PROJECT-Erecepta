@@ -1,15 +1,17 @@
 package com.example.clientservererecepta.DbEngine.DAO;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.HashMap;
+
+import com.example.clientservererecepta.DbEngine.ErrorHandlers.*;
+import com.example.clientservererecepta.DbEngine.Utils.*;
 
 public class UsersDAO {
     private final Connection conn;
+    private final Message message = new Message();
+    private final ErrorHandler errorHandler = new ErrorHandler();
+    private final SQLErrorTranslator sqlErrorTranslator = new SQLErrorTranslator();
 
     public UsersDAO(Connection conn) {
         this.conn = conn;
@@ -19,79 +21,149 @@ public class UsersDAO {
         String query = "INSERT INTO users (login, password, user_type, name, surname) VALUES (?, ?, ?, ?, ?)";
         List<HashMap<String, String>> result = new ArrayList<>();
 
+        HashMap<String, String> staticInfo1;
+        staticInfo1 = message.getDefaultErrorMessageAsHashMap();
+        result.add(staticInfo1);
+
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, login);
             stmt.setString(2, password);
             stmt.setString(3, userType);
             stmt.setString(4, name);
             stmt.setString(5, surname);
-
-            int rowsAffected = stmt.executeUpdate();
-
-            HashMap<String, String> successMap = new HashMap<>();
-            successMap.put("status", "success");
-            successMap.put("message", "User added successfully.");
-            successMap.put("rowsAffected", String.valueOf(rowsAffected));
-            result.add(successMap);
+            stmt.executeUpdate();
+            return result;
 
         } catch (SQLException e) {
-            HashMap<String, String> errorMap = new HashMap<>();
-            if (e.getSQLState().equals("23505")) {
-                errorMap.put("status", "error");
-                errorMap.put("message", "User with this login already exists.");
-            } else {
-                errorMap.put("status", "error");
-                errorMap.put("message", "An unexpected error occurred: " + e.getMessage());
-            }
-            result.add(errorMap);
+            System.out.println("Check");
+            String errorMessage = errorHandler.returnStackStraceAsString(e);
+            staticInfo1.replace(message.getHashIdStatus(), "error");
+            staticInfo1.replace(message.getHashIdException(), e.getSQLState());
+            staticInfo1.replace(message.getHashIdUserFriendlyError(), SQLErrorTranslator.translate(e.getSQLState()));
+            staticInfo1.replace(message.getHashIdErrorMessage(), errorMessage);
+            return result;
         }
 
-        return result;
     }
 
 
 
-    public boolean updateUserPassword(String login, String newPassword) {
+    public List<HashMap<String, String>> updateUserPassword(String login, String newPassword) {
+        List<HashMap<String, String>> infoList = new ArrayList<>();
+
+        HashMap<String, String> staticInfo1;
+        staticInfo1 = message.getDefaultErrorMessageAsHashMap();
+        infoList.add(staticInfo1);
+
         String query = "UPDATE users SET password = ? WHERE login = ?";
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, newPassword);
             stmt.setString(2, login);
-            return stmt.executeUpdate() > 0;
+            HashMap<String, String> staticInfo2 = new HashMap<>();
+            if(stmt.executeUpdate() > 0){
+                staticInfo2.put("success", "true");
+            }
+            else{
+                staticInfo1.replace(message.getHashIdStatus(), "error");
+                staticInfo1.replace(message.getHashIdException(), "");
+                staticInfo1.replace(message.getHashIdUserFriendlyError(), "User password was not updated");
+                staticInfo1.replace(message.getHashIdErrorMessage(), "");
+            }
+            infoList.add(staticInfo2);
+            return infoList;
         } catch (SQLException e) {
-            e.printStackTrace(System.out);
-            return false;
+            String errorMessage = errorHandler.returnStackStraceAsString(e);
+            staticInfo1.replace(message.getHashIdStatus(), "error");
+            staticInfo1.replace(message.getHashIdException(), e.getSQLState());
+            staticInfo1.replace(message.getHashIdUserFriendlyError(), SQLErrorTranslator.translate(e.getSQLState()));
+            staticInfo1.replace(message.getHashIdErrorMessage(), errorMessage);
+            return infoList;
         }
     }
 
-    public boolean deleteUser(String login) {
+    public List<HashMap<String, String>> deleteUser(String login) {
+        List<HashMap<String, String>> infoList = new ArrayList<>();
+
+        HashMap<String, String> staticInfo1;
+        staticInfo1 = message.getDefaultErrorMessageAsHashMap();
+        infoList.add(staticInfo1);
+
         String query = "DELETE FROM users WHERE login = ?";
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, login);
-            return stmt.executeUpdate() > 0;
+            HashMap<String, String> staticInfo2 = new HashMap<>();
+            if(stmt.executeUpdate() > 0){
+                staticInfo2.put("success", "true");
+            }
+            else{
+                staticInfo1.replace(message.getHashIdStatus(), "error");
+                staticInfo1.replace(message.getHashIdException(), "");
+                staticInfo1.replace(message.getHashIdUserFriendlyError(), "User was not deleted");
+                staticInfo1.replace(message.getHashIdErrorMessage(), "");
+            }
+            infoList.add(staticInfo2);
+            return infoList;
         } catch (SQLException e) {
-            e.printStackTrace(System.out);
-            return false;
+            String errorMessage = errorHandler.returnStackStraceAsString(e);
+            staticInfo1.replace(message.getHashIdStatus(), "error");
+            staticInfo1.replace(message.getHashIdException(), e.getSQLState());
+            staticInfo1.replace(message.getHashIdUserFriendlyError(), SQLErrorTranslator.translate(e.getSQLState()));
+            staticInfo1.replace(message.getHashIdErrorMessage(), errorMessage);
+            return infoList;
         }
     }
 
-    public boolean isUserValid(String login, String password) {
+    public List<HashMap<String, String>> isUserValid(String login, String password) {
+        List<HashMap<String, String>> userList = new ArrayList<>();
+
+        HashMap<String, String> staticInfo1;
+        staticInfo1 = message.getDefaultErrorMessageAsHashMap();
+        userList.add(staticInfo1);
+
         String query = "SELECT login, password FROM users WHERE login = ? AND password = ?";
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, login);
             stmt.setString(2, password);
 
             try (ResultSet rs = stmt.executeQuery()) {
-                return rs.next();
+                HashMap<String, String> user = new HashMap<>();
+                if(rs.next()){
+                    user.put("exists", "true");
+                }
+                else{
+                    staticInfo1.replace(message.getHashIdStatus(), "error");
+                    staticInfo1.replace(message.getHashIdException(), "");
+                    staticInfo1.replace(message.getHashIdUserFriendlyError(), "User does not exist");
+                    staticInfo1.replace(message.getHashIdErrorMessage(), "");
+                }
+                userList.add(user);
+                return userList;
+            }catch (SQLException e){
+                String errorMessage = errorHandler.returnStackStraceAsString(e);
+                staticInfo1.replace(message.getHashIdStatus(), "error");
+                staticInfo1.replace(message.getHashIdException(), e.getSQLState());
+                staticInfo1.replace(message.getHashIdUserFriendlyError(), SQLErrorTranslator.translate(e.getSQLState()));
+                staticInfo1.replace(message.getHashIdErrorMessage(), errorMessage);
+                return userList;
             }
         } catch (SQLException e) {
-            e.printStackTrace(System.out);
-            return false;
+            String errorMessage = errorHandler.returnStackStraceAsString(e);
+            staticInfo1.replace(message.getHashIdStatus(), "error");
+            staticInfo1.replace(message.getHashIdException(), e.getSQLState());
+            staticInfo1.replace(message.getHashIdUserFriendlyError(), SQLErrorTranslator.translate(e.getSQLState()));
+            staticInfo1.replace(message.getHashIdErrorMessage(), errorMessage);
+            return userList;
         }
     }
 
     public List<HashMap<String, String>> getUser(String login, String password) {
         List<HashMap<String, String>> userList = new ArrayList<>();
-        String query = "SELECT id,user_type, name, surname FROM users WHERE login = ? AND password = ?";
+
+        HashMap<String, String> staticInfo1;
+        staticInfo1 = message.getDefaultErrorMessageAsHashMap();
+        userList.add(staticInfo1);
+
+        String query = "SELECT user_type, name, surname FROM users WHERE login = ? AND password = ?";
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, login);
             stmt.setString(2, password);
@@ -99,15 +171,35 @@ public class UsersDAO {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     HashMap<String, String> user = new HashMap<>();
-                    user.put("id", String.valueOf(rs.getInt("id")));
-                    user.put("user_type", rs.getString("user_type"));
+                    user.put("userType", rs.getString("user_type"));
                     user.put("name", rs.getString("name"));
                     user.put("surname", rs.getString("surname"));
                     userList.add(user);
                 }
+                if(rs.next()){
+                    System.out.println("kt test 1");
+                    return userList;
+                }
+                else{
+                    System.out.println("kt test 2");
+                    staticInfo1.replace(message.getHashIdStatus(), "error");
+                    staticInfo1.replace(message.getHashIdException(), "");
+                    staticInfo1.replace(message.getHashIdUserFriendlyError(), "There is no user for that password and login");
+                    staticInfo1.replace(message.getHashIdErrorMessage(), "");
+                }
+            } catch (SQLException e){
+                String errorMessage = errorHandler.returnStackStraceAsString(e);
+                staticInfo1.replace(message.getHashIdStatus(), "error");
+                staticInfo1.replace(message.getHashIdException(), e.getSQLState());
+                staticInfo1.replace(message.getHashIdUserFriendlyError(), SQLErrorTranslator.translate(e.getSQLState()));
+                staticInfo1.replace(message.getHashIdErrorMessage(), errorMessage);
             }
         } catch (SQLException e) {
-            e.printStackTrace(System.out);
+            String errorMessage = errorHandler.returnStackStraceAsString(e);
+            staticInfo1.replace(message.getHashIdStatus(), "error");
+            staticInfo1.replace(message.getHashIdException(), e.getSQLState());
+            staticInfo1.replace(message.getHashIdUserFriendlyError(), SQLErrorTranslator.translate(e.getSQLState()));
+            staticInfo1.replace(message.getHashIdErrorMessage(), errorMessage);
         }
 
         return userList.isEmpty() ? null : userList;

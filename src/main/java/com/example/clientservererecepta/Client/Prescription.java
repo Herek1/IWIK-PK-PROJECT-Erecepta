@@ -16,7 +16,7 @@ public class Prescription {
     public Prescription(User ignoreidUser) {
         this.code = lastId;
         this.date = new SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().getTime());
-        this.patient = User.getName() + " " + User.getSurname();
+        this.patient = ignoreidUser.getName() + " " + ignoreidUser.getSurname();
         this.drugList = new ArrayList<>();
     }
 

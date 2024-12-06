@@ -23,6 +23,8 @@ public class RequestHandler {
                 System.out.println("login");
                 response = LoginHandler.handle(request, newUsersDAO);
                 break;
+            case "getPrescriptions":
+                break;
             default:
                 response = "Invalid request";
                 break;

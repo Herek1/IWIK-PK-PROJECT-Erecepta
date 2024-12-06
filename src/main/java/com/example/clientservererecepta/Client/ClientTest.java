@@ -1,23 +1,25 @@
 package com.example.clientservererecepta.Client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
+
 import java.io.*;
 import java.net.Socket;
-
 
 public class ClientTest extends Application {
     private static final int PORT = 12345;
     private StageHandler stageHandler;
     private PrintWriter out;
+    private ObjectMapper objectMapper; // JSON parser
 
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) {
+        objectMapper = new ObjectMapper(); // Initialize the ObjectMapper
         connectToServer(stage);
     }
 
@@ -48,10 +50,62 @@ public class ClientTest extends Application {
 
     private void handleServerResponse(String message) {
         System.out.println("Received: " + message);
-        //logic
-        handleLogin(message);
-        //do something
+        try {
+            JsonNode response = objectMapper.readTree(message); // Parse JSON response
+            String type = response.get("message").asText();
+
+            switch (type) {
+                case "Login successful.":
+                    handleLoginSuccess(response);
+                    break;
+                default:
+                    showError(response.get("message").asText());
+                    break;
+            }
+        } catch (Exception e) {
+            showError("Invalid server response: " + message);
+            e.printStackTrace();
+        }
     }
+
+    private void handleLoginSuccess(JsonNode response) {
+        try {
+            JsonNode userData = response.get("data").get(0);
+            String user_type = userData.get("user_type").asText();
+            int userId = userData.get("id").asInt();
+            String userName = userData.get("name").asText();
+            String userSurname = userData.get("surname").asText();
+
+            // Define the user variable as final or effectively final
+            final User user;
+            switch (user_type) {
+                case "doctor":
+                    // user = new Doctor(userId, userName, userSurname, stageHandler.getClientHandler());
+                    user = null; // Placeholder until Doctor class is implemented
+                    break;
+                case "pharmacist":
+                    // user = new Pharmacist(userId, userName, userSurname, stageHandler.getClientHandler());
+                    user = null; // Placeholder until Pharmacist class is implemented
+                    break;
+                case "patient":
+                    user = new Patient(userId, userName, userSurname, stageHandler.getClientHandler());
+                    break;
+                default:
+                    Platform.runLater(() -> stageHandler.displayMessage("Error: Unsupported role."));
+                    return;
+            }
+
+            // Switch to the role-specific view on the JavaFX Application Thread
+            Platform.runLater(() -> stageHandler.switchToRoleView(user));
+
+        } catch (Exception e) {
+            showError("Error processing login response.");
+            e.printStackTrace();
+        }
+    }
+
+
+
     private void showError(String message) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
@@ -59,76 +113,7 @@ public class ClientTest extends Application {
         });
     }
 
-    private void handleLogin(String message) {
-        User user = null;
-
-        // Parse the JSON response
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode rootNode;
-        try {
-            rootNode = objectMapper.readTree(message);
-        } catch (JsonProcessingException e) {
-            showError("Invalid server response");
-            return;
-        }
-
-        // Check for status field and handle error message
-        String status = rootNode.path("status").asText();
-        if ("error".equals(status)) {
-            String errorMessage = rootNode.path("message").asText("An unknown error occurred.");
-            showError(errorMessage);
-            return;
-        }
-
-        // Check if the "data" field exists and is an array
-        JsonNode dataNode = rootNode.path("data");
-        if (!dataNode.isArray() || dataNode.size() == 0) {
-            showError("No user data received");
-            return;
-        }
-
-        // Extract the first user record from the "data" array
-        JsonNode userNode = dataNode.get(0);
-
-        // Extract user role and other details
-        String role = userNode.get("user_type").asText();
-        System.out.println("User type: " + role);
-
-        switch (role) {
-            case "doctor":
-                // Uncomment and implement if Doctor handling is added
-                // user = new Doctor(userNode.get("id").asInt(),
-                //         userNode.get("name").asText(),
-                //         userNode.get("surname").asText());
-                // Platform.runLater(() -> stageHandler.switchToRoleView("Doctor"));
-                break;
-
-            case "pharmacist":
-                // Uncomment and implement if Pharmacist handling is added
-                // user = new Pharmacist(userNode.get("id").asInt(),
-                //         userNode.get("name").asText(),
-                //         userNode.get("surname").asText());
-                // Platform.runLater(() -> stageHandler.switchToRoleView("Pharmacist"));
-                break;
-
-            case "patient":
-                user = new Patient(
-                        Integer.valueOf(userNode.get("id").asText()),
-                        userNode.get("name").asText(),
-                        userNode.get("surname").asText()
-                );
-                User finalUser = user;
-                Platform.runLater(() -> stageHandler.switchToRoleView("Patient", finalUser));
-                break;
-
-            default:
-                showError("Login failed. Invalid user role.");
-                return;
-        }
-
-        // Use the user object as needed
-        System.out.println("User logged in: " + user);
+    public static void main(String[] args) {
+        launch(args);
     }
-
-
 }

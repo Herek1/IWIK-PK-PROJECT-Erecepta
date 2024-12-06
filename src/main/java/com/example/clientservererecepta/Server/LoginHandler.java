@@ -15,24 +15,15 @@ public class LoginHandler {
             String password = parts[2];
 
             // Query the database for the user
+            System.out.println("Login: " + login);
+            System.out.println("Password: " + password);
             List<HashMap<String, String>> dbResponse = usersDAO.getUser(login, password);
-
-            // Prepare the response structure
-            HashMap<String, Object> response = new HashMap<>();
-
-            if (dbResponse.isEmpty()) {
-                response.put("status", "error");
-                response.put("message", "Invalid login or password.");
-            } else {
-                response.put("status", "success");
-                response.put("message", "Login successful.");
-                response.put("data", dbResponse);
-            }
 
             // Convert the response to JSON
             ObjectMapper objectMapper = new ObjectMapper();
-            String jsonResponse = objectMapper.writeValueAsString(response);
-            System.out.println("Login handler prepared: " + jsonResponse);
+            String jsonResponse = objectMapper.writeValueAsString(dbResponse);
+            String prettyPrint = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(dbResponse);
+            System.out.println("Login handler prepared: " + prettyPrint);
             return jsonResponse;
         } catch (Exception e) {
             // Handle exceptions

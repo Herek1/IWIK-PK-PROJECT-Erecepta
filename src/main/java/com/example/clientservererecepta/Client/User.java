@@ -1,33 +1,34 @@
 package com.example.clientservererecepta.Client;
 
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 public abstract class User {
-    private static int id;
-    private static String name;
-    private static String surname;
+    private final int id;
+    private final String name;
+    private final String surname;
 
     public User(int id, String name, String surname) {
-        User.id = id;
-        User.name = name;
-        User.surname = surname;
-    }
-
-    public static String getSurname() {
-        return surname;
-    }
-
-    public static String getName() {
-        return name;
+        this.id = id;
+        this.name = name;
+        this.surname = surname;
     }
 
     public abstract VBox generateLayout();
 
+    public String getName() {
+        return name;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public int getId() {
+        return id;
+    }
 
     @Override
     public String toString() {
         return name + " " + surname;
     }
-
 }

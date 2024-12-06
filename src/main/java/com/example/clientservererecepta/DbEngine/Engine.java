@@ -1,7 +1,15 @@
 package com.example.clientservererecepta.DbEngine;
 
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 
 public class Engine {
@@ -87,7 +95,7 @@ public class Engine {
             )
         """);
 
-            tablesToCreate.put("pharmacy", """
+        tablesToCreate.put("pharmacy", """
             CREATE TABLE pharmacy (
                 pharmacyid SERIAL PRIMARY KEY,
                 phonenr VARCHAR(15),
@@ -95,7 +103,7 @@ public class Engine {
             )
         """);
 
-            tablesToCreate.put("medicines", """
+        tablesToCreate.put("medicines", """
             CREATE TABLE medicines (
                 drugid SERIAL PRIMARY KEY,
                 name VARCHAR(255) NOT NULL,
@@ -104,7 +112,7 @@ public class Engine {
             )
         """);
 
-            tablesToCreate.put("availability_drug", """
+        tablesToCreate.put("availability_drug", """
             CREATE TABLE availability_drug (
                 drugid INT REFERENCES medicines(drugid),
                 pharmacyid INT REFERENCES pharmacy(pharmacyid),
@@ -113,7 +121,7 @@ public class Engine {
             )
         """);
 
-            tablesToCreate.put("recipe", """
+        tablesToCreate.put("recipe", """
             CREATE TABLE recipe (
                 recipeid SERIAL PRIMARY KEY,
                 date DATE NOT NULL,
@@ -122,7 +130,7 @@ public class Engine {
             )
         """);
 
-            tablesToCreate.put("drug_list", """
+        tablesToCreate.put("drug_list", """
             CREATE TABLE drug_list (
                 recipeid INT REFERENCES recipe(recipeid),
                 drugid INT REFERENCES medicines(drugid),
@@ -133,7 +141,7 @@ public class Engine {
             )
         """);
 
-            tablesToCreate.put("pharmacy_worker", """
+        tablesToCreate.put("pharmacy_worker", """
             CREATE TABLE pharmacy_worker (
                 pharmacyid INT REFERENCES pharmacy(pharmacyid),
                 pharmacistid INT REFERENCES users(id),
@@ -141,7 +149,7 @@ public class Engine {
             )
         """);
 
-            tablesToCreate.put("couriers", """
+        tablesToCreate.put("couriers", """
             CREATE TABLE couriers (
                 courierid SERIAL PRIMARY KEY
             )

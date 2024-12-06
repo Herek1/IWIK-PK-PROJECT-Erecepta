@@ -3,13 +3,14 @@ package com.example.clientservererecepta.Client;
 import java.io.PrintWriter;
 
 public class ClientHandler {
-    private PrintWriter out;
+    private final PrintWriter output;
 
-    public ClientHandler(PrintWriter out) {
-        this.out = out;
+    public ClientHandler(PrintWriter output) {
+        this.output = output;
     }
 
     public void sendMessage(String message) {
-        out.println(message);
+        output.println(message);
+        output.flush();
     }
 }

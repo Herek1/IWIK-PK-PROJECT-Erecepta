@@ -1,26 +1,38 @@
 package com.example.clientservererecepta.Client;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.Label;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 public class Patient extends User {
-    public Patient(int id, String name, String surname) {
+    private final ClientHandler clientHandler;
+
+    public Patient(int id, String name, String surname, ClientHandler clientHandler) {
         super(id, name, surname);
+        this.clientHandler = clientHandler;
     }
 
     @Override
     public VBox generateLayout() {
         Label welcomeLabel = new Label("Welcome, " + toString());
-        Button managePatientsButton = new Button("Manage receipes");
-        Button logoutButton = new Button("Logout");
+        TextArea messagesArea = new TextArea();
+        messagesArea.setEditable(false);
 
-        // Return a specific layout for the doctor.
-        return new VBox(10, welcomeLabel, managePatientsButton, logoutButton);
+        // Button to check prescriptions
+        Button checkPrescriptionsButton = new Button("Check Prescriptions");
+        checkPrescriptionsButton.setOnAction(event -> {
+            clientHandler.sendMessage("getPrescriptions;" + getId());
+            messagesArea.appendText("Fetching prescriptions...\n");
+        });
+
+        // Button to manage appointments
+        Button manageAppointmentsButton = new Button("Manage Appointments");
+        manageAppointmentsButton.setOnAction(event -> {
+            clientHandler.sendMessage("manageAppointments;" + getId());
+            messagesArea.appendText("Opening appointment management...\n");
+        });
+
+        return new VBox(10, welcomeLabel, messagesArea, checkPrescriptionsButton, manageAppointmentsButton);
     }
-
-
 }
