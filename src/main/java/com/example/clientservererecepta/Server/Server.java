@@ -37,7 +37,7 @@ public class Server {
                 RequestHandler requestHandler = new RequestHandler();
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
-                    System.out.println("Received from client: " + inputLine);
+                    System.out.println("Received from chlient: " + inputLine);
                     String response = requestHandler.handle(inputLine);
                     out.println(response);
                 }

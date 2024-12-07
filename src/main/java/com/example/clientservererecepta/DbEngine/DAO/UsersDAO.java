@@ -169,19 +169,17 @@ public class UsersDAO {
             stmt.setString(2, password);
 
             try (ResultSet rs = stmt.executeQuery()) {
+                HashMap<String, String> user = new HashMap<>();
                 while (rs.next()) {
-                    HashMap<String, String> user = new HashMap<>();
                     user.put("userType", rs.getString("user_type"));
                     user.put("name", rs.getString("name"));
                     user.put("surname", rs.getString("surname"));
                     userList.add(user);
                 }
-                if(rs.next()){
-                    System.out.println("kt test 1");
+                if(!user.isEmpty()){
                     return userList;
                 }
                 else{
-                    System.out.println("kt test 2");
                     staticInfo1.replace(message.getHashIdStatus(), "error");
                     staticInfo1.replace(message.getHashIdException(), "");
                     staticInfo1.replace(message.getHashIdUserFriendlyError(), "There is no user for that password and login");

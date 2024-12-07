@@ -2,6 +2,7 @@ package com.example.clientservererecepta.Server;
 
 import com.example.clientservererecepta.DbEngine.DAO.UsersDAO;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,9 +20,16 @@ public class LoginHandler {
             System.out.println("Password: " + password);
             List<HashMap<String, String>> dbResponse = usersDAO.getUser(login, password);
 
-            // Convert the response to JSON
+            // Create an ObjectMapper
             ObjectMapper objectMapper = new ObjectMapper();
-            String jsonResponse = objectMapper.writeValueAsString(dbResponse);
+
+            // Wrap the DB response and additional metadata into a new JSON object
+            ObjectNode jsonResponseNode = objectMapper.createObjectNode();
+            jsonResponseNode.put("type", "login"); // Add request type
+            jsonResponseNode.set("data", objectMapper.valueToTree(dbResponse)); // Add the DB response as 'data'
+
+            // Convert the ObjectNode to a JSON string
+            String jsonResponse = objectMapper.writeValueAsString(jsonResponseNode);
             String prettyPrint = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(dbResponse);
             System.out.println("Login handler prepared: " + prettyPrint);
             return jsonResponse;

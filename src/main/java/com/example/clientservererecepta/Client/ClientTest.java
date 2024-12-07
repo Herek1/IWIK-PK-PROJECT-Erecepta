@@ -52,15 +52,41 @@ public class ClientTest extends Application {
         System.out.println("Received: " + message);
         try {
             JsonNode response = objectMapper.readTree(message); // Parse JSON response
-            String type = response.get("message").asText();
 
-            switch (type) {
-                case "Login successful.":
-                    handleLoginSuccess(response);
-                    break;
-                default:
-                    showError(response.get("message").asText());
-                    break;
+            // Access the status from the first element in the data array
+            JsonNode dataArray = response.get("data");
+            if (dataArray == null || !dataArray.isArray() || dataArray.isEmpty()) {
+                showError("Invalid server response: missing data array.");
+                return;
+            }
+
+            JsonNode statusNode = dataArray.get(0).get("status");
+            if (statusNode == null) {
+                showError("Invalid server response: missing status.");
+                return;
+            }
+
+            String status = statusNode.asText();
+            if ("Error".equalsIgnoreCase(status)) {
+                // Handle error case
+                String userFriendlyError = dataArray.get(0).get("userFriendlyError").asText();
+                showError(userFriendlyError);
+                return;
+            }
+
+            if ("Success".equalsIgnoreCase(status)) {
+                // Handle success case
+                String type = response.get("type").asText();
+                switch (type) {
+                    case "login":
+                        handleLoginSuccess(response);
+                        break;
+                    default:
+                        showError("Unknown response type: " + type);
+                        break;
+                }
+            } else {
+                showError("Unexpected status: " + status);
             }
         } catch (Exception e) {
             showError("Invalid server response: " + message);
@@ -68,23 +94,28 @@ public class ClientTest extends Application {
         }
     }
 
+
+
     private void handleLoginSuccess(JsonNode response) {
         try {
-            JsonNode userData = response.get("data").get(0);
-            String user_type = userData.get("user_type").asText();
-            int userId = userData.get("id").asInt();
+            // Get the second object in the data array (index 1) for user details
+            JsonNode userData = response.get("data").get(1);
+            if (userData == null) {
+                showError("Error: Missing user data in response.");
+                return;
+            }
+
+            String userType = userData.get("userType").asText(); // Note the correct field name
             String userName = userData.get("name").asText();
             String userSurname = userData.get("surname").asText();
+            int userId = userData.has("id") ? userData.get("id").asInt() : -1; // Handle missing 'id' gracefully
 
-            // Define the user variable as final or effectively final
             final User user;
-            switch (user_type) {
+            switch (userType.toLowerCase()) { // Use case-insensitive comparison for safety
                 case "doctor":
-                    // user = new Doctor(userId, userName, userSurname, stageHandler.getClientHandler());
                     user = null; // Placeholder until Doctor class is implemented
                     break;
                 case "pharmacist":
-                    // user = new Pharmacist(userId, userName, userSurname, stageHandler.getClientHandler());
                     user = null; // Placeholder until Pharmacist class is implemented
                     break;
                 case "patient":
@@ -103,6 +134,7 @@ public class ClientTest extends Application {
             e.printStackTrace();
         }
     }
+
 
 
 
