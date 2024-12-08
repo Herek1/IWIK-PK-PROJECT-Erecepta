@@ -1,5 +1,6 @@
 package com.example.clientservererecepta.Client;
 
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
@@ -7,18 +8,22 @@ import javafx.stage.Stage;
 
 public class StageHandler {
     private final Stage stage;
-    private final ClientHandler clientHandler; // Handles communication
+    private final ClientHandler clientHandler;
     private TextArea messagesArea;
-    private TextField login;
-    private TextField password;
 
     public StageHandler(Stage stage, ClientHandler clientHandler) {
         this.stage = stage;
         this.clientHandler = clientHandler;
+        this.messagesArea = new TextArea();
+        this.messagesArea.setEditable(false);
     }
 
     public ClientHandler getClientHandler() {
         return clientHandler;
+    }
+
+    public TextArea getMessagesArea() {
+        return messagesArea;
     }
 
     public void setDefaultView() {
@@ -37,35 +42,33 @@ public class StageHandler {
         stage.setScene(new Scene(layout, 400, 300));
     }
 
-
-
     private VBox generateDefaultLayout() {
-        login = new TextField();
+        TextField login = new TextField();
         login.setPromptText("Login");
 
-        password = new TextField();
+        TextField password = new TextField();
         password.setPromptText("Password");
 
-        messagesArea = new TextArea();
-        messagesArea.setEditable(false);
-
         Button loginButton = new Button("Login");
-        loginButton.setOnAction(event -> sendLoginData());
+        loginButton.setOnAction(event -> sendLoginData(login, password));
 
         return new VBox(10, messagesArea, login, password, loginButton);
     }
 
-    private void sendLoginData() {
-        String loginData = "login;"+login.getText() + ";" + password.getText();
+    private void sendLoginData(TextField login, TextField password) {
+        String loginData = "login;" + login.getText() + ";" + password.getText();
         if (!loginData.isBlank()) {
             clientHandler.sendMessage(loginData);
         } else {
-            messagesArea.appendText("Please enter login credentials.\n");
+            displayMessage("Please enter login credentials.");
         }
     }
+
     public void displayMessage(String message) {
-        if (messagesArea != null) {
+        Platform.runLater(() -> {
+            messagesArea.clear();
             messagesArea.appendText(message + "\n");
-        }
+            messagesArea.setScrollTop(Double.MAX_VALUE);
+        });
     }
 }

@@ -81,6 +81,9 @@ public class ClientTest extends Application {
                     case "login":
                         handleLoginSuccess(response);
                         break;
+                    case "getUserPrescriptions":
+                        handlegetUserPrescriptionsSuccess(response);
+                        break;
                     default:
                         showError("Unknown response type: " + type);
                         break;
@@ -108,7 +111,7 @@ public class ClientTest extends Application {
             String userType = userData.get("userType").asText(); // Note the correct field name
             String userName = userData.get("name").asText();
             String userSurname = userData.get("surname").asText();
-            int userId = userData.has("id") ? userData.get("id").asInt() : -1; // Handle missing 'id' gracefully
+            int login = Integer.valueOf(userData.get("login").asText());
 
             final User user;
             switch (userType.toLowerCase()) { // Use case-insensitive comparison for safety
@@ -119,13 +122,14 @@ public class ClientTest extends Application {
                     user = null; // Placeholder until Pharmacist class is implemented
                     break;
                 case "patient":
-                    user = new Patient(userId, userName, userSurname, stageHandler.getClientHandler());
+                    user = new Patient(login, userName, userSurname, stageHandler.getClientHandler(), stageHandler);
                     break;
                 default:
                     Platform.runLater(() -> stageHandler.displayMessage("Error: Unsupported role."));
                     return;
             }
 
+            UserSession.setCurrentUser(user);
             // Switch to the role-specific view on the JavaFX Application Thread
             Platform.runLater(() -> stageHandler.switchToRoleView(user));
 
@@ -136,6 +140,28 @@ public class ClientTest extends Application {
     }
 
 
+    private void handlegetUserPrescriptionsSuccess(JsonNode response) {
+        // Assuming the current user is a Patient and we have set it using UserSession
+        Patient currentPatient = (Patient) UserSession.getCurrentUser();
+
+        if (currentPatient == null) {
+            showError("No logged-in patient found.");
+            return;
+        }
+
+        // Extract prescription data from the response
+        JsonNode prescriptionsData = response.get("data").get(1); // Assuming prescriptions data is at index 1
+        if (prescriptionsData == null || prescriptionsData.isEmpty()) {
+            showError("No prescriptions found.");
+            return;
+        }
+
+        // Process prescriptions and update the patient's view
+        Platform.runLater(() -> {
+            // Update the UI with the prescriptions
+            currentPatient.updatePrescriptions(response);
+        });
+    }
 
 
     private void showError(String message) {

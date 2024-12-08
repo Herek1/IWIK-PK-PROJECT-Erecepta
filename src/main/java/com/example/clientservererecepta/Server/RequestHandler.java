@@ -1,5 +1,6 @@
 package com.example.clientservererecepta.Server;
 
+import com.example.clientservererecepta.Client.Prescription;
 import com.example.clientservererecepta.DbEngine.DAO.UsersDAO;
 import com.example.clientservererecepta.DbEngine.Engine;
 
@@ -24,6 +25,7 @@ public class RequestHandler {
                 response = LoginHandler.handle(request, newUsersDAO);
                 break;
             case "getPrescriptions":
+                response = PrescriptionHandler.handle(request, newUsersDAO);
                 break;
             default:
                 response = "Invalid request";

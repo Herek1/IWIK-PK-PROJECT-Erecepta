@@ -163,7 +163,7 @@ public class UsersDAO {
         staticInfo1 = message.getDefaultErrorMessageAsHashMap();
         userList.add(staticInfo1);
 
-        String query = "SELECT user_type, name, surname FROM users WHERE login = ? AND password = ?";
+        String query = "SELECT login,user_type, name, surname FROM users WHERE login = ? AND password = ?";
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, login);
             stmt.setString(2, password);
@@ -171,6 +171,7 @@ public class UsersDAO {
             try (ResultSet rs = stmt.executeQuery()) {
                 HashMap<String, String> user = new HashMap<>();
                 while (rs.next()) {
+                    user.put("login", rs.getString("login"));
                     user.put("userType", rs.getString("user_type"));
                     user.put("name", rs.getString("name"));
                     user.put("surname", rs.getString("surname"));

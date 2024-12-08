@@ -13,10 +13,10 @@ public class Prescription {
 
     private final int lastId = 34567;
 
-    public Prescription(User ignoreidUser) {
+    public Prescription(String name, String surname) {
         this.code = lastId;
         this.date = new SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().getTime());
-        this.patient = ignoreidUser.getName() + " " + ignoreidUser.getSurname();
+        this.patient = name + " " + surname;
         this.drugList = new ArrayList<>();
     }
 

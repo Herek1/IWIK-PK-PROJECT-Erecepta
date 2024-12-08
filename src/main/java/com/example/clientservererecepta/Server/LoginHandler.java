@@ -29,24 +29,12 @@ public class LoginHandler {
             jsonResponseNode.set("data", objectMapper.valueToTree(dbResponse)); // Add the DB response as 'data'
 
             // Convert the ObjectNode to a JSON string
-            String jsonResponse = objectMapper.writeValueAsString(jsonResponseNode);
-            String prettyPrint = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(dbResponse);
-            System.out.println("Login handler prepared: " + prettyPrint);
-            return jsonResponse;
+            return objectMapper.writeValueAsString(jsonResponseNode);
         } catch (Exception e) {
             // Handle exceptions
             e.printStackTrace();
 
-            // Return error response
-            HashMap<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("status", "error");
-            errorResponse.put("message", "An unexpected error occurred.");
-            try {
-                return new ObjectMapper().writeValueAsString(errorResponse);
-            } catch (Exception jsonException) {
-                jsonException.printStackTrace();
-                return "{\"status\":\"error\",\"message\":\"Critical failure.\"}";
-            }
+            return ErrorResponseUtil.createErrorResponse("An unexpected error occurred during login.");
         }
     }
 }
