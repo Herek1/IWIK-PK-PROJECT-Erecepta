@@ -1,8 +1,9 @@
 package com.example.clientservererecepta.Server;
 
+import com.example.clientservererecepta.Server.Requests.RequestHandler;
+
 import java.io.*;
 import java.net.*;
-import java.util.HashMap;
 
 public class Server {
     private static final int PORT = 12345;

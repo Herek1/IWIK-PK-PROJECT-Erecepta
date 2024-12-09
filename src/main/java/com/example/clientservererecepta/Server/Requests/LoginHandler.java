@@ -1,6 +1,7 @@
-package com.example.clientservererecepta.Server;
+package com.example.clientservererecepta.Server.Requests;
 
 import com.example.clientservererecepta.DbEngine.DAO.UsersDAO;
+import com.example.clientservererecepta.Server.Util.ErrorResponseUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 

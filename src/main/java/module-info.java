@@ -6,4 +6,6 @@ module com.example.clientservererecepta {
     requires jdk.httpserver;
     exports com.example.clientservererecepta.Client;
     exports com.example.clientservererecepta.Server;
+    exports com.example.clientservererecepta.Server.Requests;
+    exports com.example.clientservererecepta.Server.Util;
 }

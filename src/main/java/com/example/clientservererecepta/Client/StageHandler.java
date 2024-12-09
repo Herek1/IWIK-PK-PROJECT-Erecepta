@@ -42,6 +42,13 @@ public class StageHandler {
         stage.setScene(new Scene(layout, 400, 300));
     }
 
+    public void setScene(Scene scene) {
+        Platform.runLater(() -> {
+            stage.setScene(scene);
+            stage.show();
+        });
+    }
+
     private VBox generateDefaultLayout() {
         TextField login = new TextField();
         login.setPromptText("Login");

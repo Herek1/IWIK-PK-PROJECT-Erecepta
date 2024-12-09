@@ -77,12 +77,16 @@ public class ClientTest extends Application {
             if ("Success".equalsIgnoreCase(status)) {
                 // Handle success case
                 String type = response.get("type").asText();
+                System.out.println("type: "+ type);
                 switch (type) {
                     case "login":
                         handleLoginSuccess(response);
                         break;
                     case "getUserPrescriptions":
                         handlegetUserPrescriptionsSuccess(response);
+                        break;
+                    case "checkDrugAvailability":
+                        handleCheckDrugAvailability(response);
                         break;
                     default:
                         showError("Unknown response type: " + type);
@@ -97,6 +101,28 @@ public class ClientTest extends Application {
         }
     }
 
+    private void handleCheckDrugAvailability(JsonNode response) {
+        System.out.println("handleCheckDrugAvailability\n" + response);
+        Patient currentPatient = (Patient) UserSession.getCurrentUser();
+
+        if (currentPatient == null) {
+            showError("No logged-in patient found.");
+            return;
+        }
+
+        // Extract prescription data from the response
+        JsonNode prescriptionsData = response.get("data").get(1); // Assuming prescriptions data is at index 1
+        if (prescriptionsData == null || prescriptionsData.isEmpty()) {
+            showError("No prescriptions found.");
+            return;
+        }
+
+        // Process prescriptions and update the patient's view
+        Platform.runLater(() -> {
+            // Update the UI with the prescriptions
+            currentPatient.updateDrugAvailability(response);
+        });
+    }
 
 
     private void handleLoginSuccess(JsonNode response) {

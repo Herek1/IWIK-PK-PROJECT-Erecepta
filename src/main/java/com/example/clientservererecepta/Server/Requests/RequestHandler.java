@@ -1,6 +1,5 @@
-package com.example.clientservererecepta.Server;
+package com.example.clientservererecepta.Server.Requests;
 
-import com.example.clientservererecepta.Client.Prescription;
 import com.example.clientservererecepta.DbEngine.DAO.UsersDAO;
 import com.example.clientservererecepta.DbEngine.Engine;
 
@@ -21,16 +20,19 @@ public class RequestHandler {
         String requestHeader = request.split(";")[0];
         switch (requestHeader){
             case "login":
-                System.out.println("login");
                 response = LoginHandler.handle(request, newUsersDAO);
                 break;
             case "getPrescriptions":
                 response = PrescriptionHandler.handle(request, newUsersDAO);
                 break;
+            case "checkDrugAvailability":
+                response = DrugAvailabilityHandler.handle(request, newUsersDAO);
+                break;
             default:
                 response = "Invalid request";
                 break;
         }
+        System.out.println("response: " + response);
         return response;
     }
 }
