@@ -105,9 +105,9 @@ public class ClientTest extends Application {
 
     private void handleCheckDrugAvailability(JsonNode response) {
         System.out.println("handleCheckDrugAvailability\n" + response);
-        Patient currentPatient = (Patient) UserSession.getCurrentUser();
+        User currentUser = UserSession.getCurrentUser();
 
-        if (currentPatient == null) {
+        if (currentUser == null) {
             ShowAlert.error("No logged-in patient found.");
             return;
         }
@@ -119,11 +119,20 @@ public class ClientTest extends Application {
             return;
         }
 
-        // Process prescriptions and update the patient's view
-        Platform.runLater(() -> {
-            // Update the UI with the prescriptions
-            currentPatient.updateDrugAvailability(response);
-        });
+        if( currentUser instanceof Patient) {
+            Patient currentPatient = (Patient) currentUser;
+            // Process prescriptions and update the patient's view
+            Platform.runLater(() -> {
+                // Update the UI with the prescriptions
+                currentPatient.updateDrugAvailability(response);
+            });
+        }
+        if( currentUser instanceof Pharmacist) {
+            Pharmacist currentPharmacist = (Pharmacist) currentUser;
+            Platform.runLater(() -> {
+                currentPharmacist.updateDrugAvailability(response);
+            });
+        }
     }
 
 
@@ -147,7 +156,7 @@ public class ClientTest extends Application {
                     user = new Doctor(login, userName, userSurname, stageHandler.getClientHandler(), stageHandler);
                     break;
                 case "pharmacist":
-                    user = null; // Placeholder until Pharmacist class is implemented
+                    user = new Pharmacist(login, userName, userSurname, stageHandler.getClientHandler(), stageHandler);
                     break;
                 case "patient":
                     user = new Patient(login, userName, userSurname, stageHandler.getClientHandler(), stageHandler);
@@ -170,9 +179,9 @@ public class ClientTest extends Application {
 
     private void handlegetUserPrescriptionsSuccess(JsonNode response) {
         // Assuming the current user is a Patient and we have set it using UserSession
-        Patient currentPatient = (Patient) UserSession.getCurrentUser();
+        User currentUser = UserSession.getCurrentUser();
 
-        if (currentPatient == null) {
+        if (currentUser == null) {
             ShowAlert.error("No logged-in patient found.");
             return;
         }
@@ -183,12 +192,20 @@ public class ClientTest extends Application {
             ShowAlert.error("No prescriptions found.");
             return;
         }
-
-        // Process prescriptions and update the patient's view
-        Platform.runLater(() -> {
-            // Update the UI with the prescriptions
-            currentPatient.updatePrescriptions(response);
-        });
+        if(currentUser instanceof Patient) {
+            // Process prescriptions and update the patient's view
+            Patient currentPatient = (Patient) currentUser;
+            Platform.runLater(() -> {
+                // Update the UI with the prescriptions
+                currentPatient.updatePrescriptions(response);
+            });
+        }
+        if(currentUser instanceof Pharmacist) {
+            Pharmacist currentPharmacist = (Pharmacist) currentUser;
+            Platform.runLater(() -> {
+                currentPharmacist.updatePrescriptions(response);
+            });
+        }
     }
 
 

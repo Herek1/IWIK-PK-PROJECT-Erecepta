@@ -40,7 +40,7 @@ public class Patient extends User {
 
         // Use the shared messagesArea from StageHandler
         TextArea messagesArea = stageHandler.getMessagesArea();
-
+        stageHandler.displayMessage("");
         return new VBox(10, welcomeLabel, checkPrescriptionsButton, checkDrugAvailabilityButton,changePassword, messagesArea);
     }
 
@@ -106,7 +106,6 @@ public class Patient extends User {
     }
 
     public void updateDrugAvailability(JsonNode response) {
-        System.out.println("test");
         // Assuming response is a simple message from the server
         JsonNode dataArray = response.get("data");
         StringBuilder finalInfo = new StringBuilder();
