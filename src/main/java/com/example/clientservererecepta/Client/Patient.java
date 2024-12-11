@@ -32,12 +32,16 @@ public class Patient extends User {
         checkDrugAvailabilityButton.setOnAction(event ->{
                 openDrugAvailabilityScene();
         });
+        Button changePassword = new Button("Change Password");
+        changePassword.setOnAction(event -> {
+            openChangePasswordScene();
+        });
 
 
         // Use the shared messagesArea from StageHandler
         TextArea messagesArea = stageHandler.getMessagesArea();
 
-        return new VBox(10, welcomeLabel, messagesArea, checkPrescriptionsButton, checkDrugAvailabilityButton);
+        return new VBox(10, welcomeLabel, checkPrescriptionsButton, checkDrugAvailabilityButton,changePassword, messagesArea);
     }
 
     public void updatePrescriptions(JsonNode response) {
@@ -129,5 +133,37 @@ public class Patient extends User {
         } else {
             stageHandler.displayMessage("No drug found.");
         }
+    }
+
+    private void openChangePasswordScene() {
+        VBox drugLayout = new VBox(10);
+        Label instructionLabel = new Label("Enter new password");
+        TextField newPassowrd = new TextField();
+        Button sendRequestButton = new Button("Change password");
+        Button cancelButton = new Button("Cancel");
+        TextArea drugResultsArea = stageHandler.getMessagesArea();
+        drugResultsArea.setEditable(false); // Make results area read-only
+
+        // Send request to server
+        sendRequestButton.setOnAction(event -> {
+            String passwordText = newPassowrd.getText();
+            if (passwordText.isEmpty()) {
+                drugResultsArea.setText("Please enter a new password.");
+            } else {
+                clientHandler.sendMessage("changePassword;" + passwordText + ";"+getId());
+                stageHandler.setScene(new Scene(generateLayout(), 400, 300));
+            }
+        });
+
+        // Cancel button to return to the main layout
+        cancelButton.setOnAction(event -> stageHandler.setScene(new Scene(generateLayout(), 400, 300)));
+
+        // Add components to layout
+        drugLayout.getChildren().addAll(instructionLabel, newPassowrd, sendRequestButton, drugResultsArea, cancelButton);
+
+        // Set the new scene
+        Scene passwordScene = new Scene(drugLayout, 400, 300);
+        stageHandler.setScene(passwordScene);
+        stageHandler.displayMessage("");
     }
 }

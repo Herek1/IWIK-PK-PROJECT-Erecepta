@@ -1,11 +1,10 @@
 package com.example.clientservererecepta.Client;
 
+import com.example.clientservererecepta.Client.Util.ShowAlert;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 
 import java.io.*;
@@ -39,12 +38,12 @@ public class ClientTest extends Application {
                         handleServerResponse(message);
                     }
                 } catch (IOException e) {
-                    showError("Connection lost");
+                    ShowAlert.error("Connection lost");
                 }
             }).start();
 
         } catch (IOException e) {
-            showError("Unable to connect to the server.");
+            ShowAlert.error("Unable to connect to the server.");
         }
     }
 
@@ -56,13 +55,13 @@ public class ClientTest extends Application {
             // Access the status from the first element in the data array
             JsonNode dataArray = response.get("data");
             if (dataArray == null || !dataArray.isArray() || dataArray.isEmpty()) {
-                showError("Invalid server response: missing data array.");
+                ShowAlert.error("Invalid server response: missing data array.");
                 return;
             }
 
             JsonNode statusNode = dataArray.get(0).get("status");
             if (statusNode == null) {
-                showError("Invalid server response: missing status.");
+                ShowAlert.error("Invalid server response: missing status.");
                 return;
             }
 
@@ -70,7 +69,7 @@ public class ClientTest extends Application {
             if ("Error".equalsIgnoreCase(status)) {
                 // Handle error case
                 String userFriendlyError = dataArray.get(0).get("userFriendlyError").asText();
-                showError(userFriendlyError);
+                ShowAlert.error(userFriendlyError);
                 return;
             }
 
@@ -88,15 +87,18 @@ public class ClientTest extends Application {
                     case "checkDrugAvailability":
                         handleCheckDrugAvailability(response);
                         break;
+                    case "changePassword":
+                        ShowAlert.info("Password changed.");
+                        break;
                     default:
-                        showError("Unknown response type: " + type);
+                        ShowAlert.error("Unknown response type: " + type);
                         break;
                 }
             } else {
-                showError("Unexpected status: " + status);
+                ShowAlert.error("Unexpected status: " + status);
             }
         } catch (Exception e) {
-            showError("Invalid server response: " + message);
+            ShowAlert.error("Invalid server response: " + message);
             e.printStackTrace();
         }
     }
@@ -106,14 +108,14 @@ public class ClientTest extends Application {
         Patient currentPatient = (Patient) UserSession.getCurrentUser();
 
         if (currentPatient == null) {
-            showError("No logged-in patient found.");
+            ShowAlert.error("No logged-in patient found.");
             return;
         }
 
         // Extract prescription data from the response
         JsonNode prescriptionsData = response.get("data").get(1); // Assuming prescriptions data is at index 1
         if (prescriptionsData == null || prescriptionsData.isEmpty()) {
-            showError("No prescriptions found.");
+            ShowAlert.error("No prescriptions found.");
             return;
         }
 
@@ -130,7 +132,7 @@ public class ClientTest extends Application {
             // Get the second object in the data array (index 1) for user details
             JsonNode userData = response.get("data").get(1);
             if (userData == null) {
-                showError("Error: Missing user data in response.");
+                ShowAlert.error("Error: Missing user data in response.");
                 return;
             }
 
@@ -142,7 +144,7 @@ public class ClientTest extends Application {
             final User user;
             switch (userType.toLowerCase()) { // Use case-insensitive comparison for safety
                 case "doctor":
-                    user = null; // Placeholder until Doctor class is implemented
+                    user = new Doctor(login, userName, userSurname, stageHandler.getClientHandler(), stageHandler);
                     break;
                 case "pharmacist":
                     user = null; // Placeholder until Pharmacist class is implemented
@@ -160,7 +162,7 @@ public class ClientTest extends Application {
             Platform.runLater(() -> stageHandler.switchToRoleView(user));
 
         } catch (Exception e) {
-            showError("Error processing login response.");
+            ShowAlert.error("Error processing login response.");
             e.printStackTrace();
         }
     }
@@ -171,14 +173,14 @@ public class ClientTest extends Application {
         Patient currentPatient = (Patient) UserSession.getCurrentUser();
 
         if (currentPatient == null) {
-            showError("No logged-in patient found.");
+            ShowAlert.error("No logged-in patient found.");
             return;
         }
 
         // Extract prescription data from the response
         JsonNode prescriptionsData = response.get("data").get(1); // Assuming prescriptions data is at index 1
         if (prescriptionsData == null || prescriptionsData.isEmpty()) {
-            showError("No prescriptions found.");
+            ShowAlert.error("No prescriptions found.");
             return;
         }
 
@@ -190,12 +192,12 @@ public class ClientTest extends Application {
     }
 
 
-    private void showError(String message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
-            alert.showAndWait();
-        });
-    }
+//    private void showError(String message) {
+//        Platform.runLater(() -> {
+//            Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
+//            alert.showAndWait();
+//        });
+//    }
 
     public static void main(String[] args) {
         launch(args);

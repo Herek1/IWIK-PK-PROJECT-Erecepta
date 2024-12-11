@@ -28,6 +28,12 @@ public class RequestHandler {
             case "checkDrugAvailability":
                 response = DrugAvailabilityHandler.handle(request, newUsersDAO);
                 break;
+            case "changePassword":
+                response = PasswordHandler.handle(request, newUsersDAO);
+                break;
+            case "addPrescription":
+                response = null;
+                break;
             default:
                 response = "Invalid request";
                 break;
