@@ -1,7 +1,7 @@
 package com.example.clientservererecepta.Server.Requests;
 
-import com.example.clientservererecepta.DbEngine.DAO.UsersDAO;
 import com.example.clientservererecepta.DbEngine.Engine;
+import com.example.clientservererecepta.DbEngine.dao.*;
 
 import java.sql.Connection;
 

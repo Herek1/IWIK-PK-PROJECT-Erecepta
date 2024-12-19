@@ -4,6 +4,7 @@ module com.example.clientservererecepta {
     requires com.fasterxml.jackson.databind;
     requires java.sql;
     requires jdk.httpserver;
+    requires java.desktop;
     exports com.example.clientservererecepta.Client;
     exports com.example.clientservererecepta.Server;
     exports com.example.clientservererecepta.Server.Requests;

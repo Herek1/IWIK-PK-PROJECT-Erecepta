@@ -1,4 +1,4 @@
-package com.example.clientservererecepta.DbEngine.ErrorHandlers;
+package com.example.clientservererecepta.DbEngine.error;
 
 import java.util.HashMap;
 

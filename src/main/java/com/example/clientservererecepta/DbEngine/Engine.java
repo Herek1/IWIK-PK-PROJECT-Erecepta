@@ -1,21 +1,22 @@
 package com.example.clientservererecepta.DbEngine;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.LinkedHashMap;
+
+
+
+import com.example.clientservererecepta.DbEngine.utils.EngineSettings;
+import com.example.clientservererecepta.DbEngine.utils.TableMapper;
+
+import java.sql.*;
+import java.util.*;
 
 
 public class Engine {
     private final Connection engineConnection;
     private final Statement statement;
     private final String DBURL;
+    private final EngineSettings engineSettings = new EngineSettings();
+    private final TableMapper tableMapper = new TableMapper();
+    private final EngineStartup engineStartup = new EngineStartup();
 
     public Engine(String dbname, String user, String password, String DBURL){
         DBConnection db = new DBConnection(DBURL);
@@ -25,6 +26,7 @@ public class Engine {
         }
         engineConnection = db.connectToDb(dbname, user, password);
         this.DBURL = DBURL;
+        engineSettings.setDbName(dbname);
     }
 
     //Default DBURL leads to localhost -> jdbc:postgresql://localhost:5432/
@@ -37,6 +39,7 @@ public class Engine {
             createDatabase(dbname, user, password, DBURL);
         }
         engineConnection = db.connectToDb(dbname, user, password);
+        engineSettings.setDbName(dbname);
     }
 
     //localhost connection
@@ -48,6 +51,7 @@ public class Engine {
             createDatabase(dbname, "postgres", "admin", DBURL);
         }
         engineConnection = db.connectToDb(dbname, "postgres", "admin");
+        engineSettings.setDbName(dbname);
     }
 
     public Engine(){
@@ -58,6 +62,7 @@ public class Engine {
             createDatabase("medicals", "postgres", "admin", DBURL);
         }
         engineConnection = db.connectToDb("medicals", "postgres", "admin");
+        engineSettings.setDbName("medicals");
     }
 
     private boolean doesDatabaseExist(String dbname, String user, String password, String dbUrl) {
@@ -81,88 +86,9 @@ public class Engine {
     }
 
     public void start() {
-        Tables table = new Tables();
-
-        Map<String, String> tablesToCreate = new LinkedHashMap<>();
-        tablesToCreate.put("users", """
-            CREATE TABLE users (
-                id SERIAL PRIMARY KEY,
-                login VARCHAR(255) NOT NULL UNIQUE,
-                password VARCHAR(255) NOT NULL,
-                user_type VARCHAR(50) NOT NULL,
-                name VARCHAR(255) NOT NULL,
-                surname VARCHAR(255) NOT NULL
-            )
-        """);
-
-        tablesToCreate.put("pharmacy", """
-            CREATE TABLE pharmacy (
-                pharmacyid SERIAL PRIMARY KEY,
-                phonenr VARCHAR(15),
-                address TEXT
-            )
-        """);
-
-        tablesToCreate.put("medicines", """
-            CREATE TABLE medicines (
-                drugid SERIAL PRIMARY KEY,
-                name VARCHAR(255) NOT NULL,
-                description TEXT,
-                price NUMERIC(10, 2) NOT NULL
-            )
-        """);
-
-        tablesToCreate.put("availability_drug", """
-            CREATE TABLE availability_drug (
-                drugid INT REFERENCES medicines(drugid),
-                pharmacyid INT REFERENCES pharmacy(pharmacyid),
-                amount INT NOT NULL,
-                PRIMARY KEY (drugid, pharmacyid)
-            )
-        """);
-
-        tablesToCreate.put("recipe", """
-            CREATE TABLE recipe (
-                recipeid SERIAL PRIMARY KEY,
-                date DATE NOT NULL,
-                doctorid INT REFERENCES users(id),
-                patientid INT REFERENCES users(id)
-            )
-        """);
-
-        tablesToCreate.put("drug_list", """
-            CREATE TABLE drug_list (
-                recipeid INT REFERENCES recipe(recipeid),
-                drugid INT REFERENCES medicines(drugid),
-                amount INT NOT NULL,
-                pharmacistid INT REFERENCES users(id),
-                fulfill_method VARCHAR(50),
-                PRIMARY KEY (recipeid, drugid)
-            )
-        """);
-
-        tablesToCreate.put("pharmacy_worker", """
-            CREATE TABLE pharmacy_worker (
-                pharmacyid INT REFERENCES pharmacy(pharmacyid),
-                pharmacistid INT REFERENCES users(id),
-                PRIMARY KEY (pharmacyid, pharmacistid)
-            )
-        """);
-
-        tablesToCreate.put("couriers", """
-            CREATE TABLE couriers (
-                courierid SERIAL PRIMARY KEY
-            )
-        """);
-
-        for (Map.Entry<String, String> entry : tablesToCreate.entrySet()) {
-            String tableName = entry.getKey();
-            String createQuery = entry.getValue();
-
-            if (!table.doesTableExist(engineConnection, tableName)) {
-                table.createTable(createQuery, engineConnection);
-            }
-        }
+        this.engineStartup.run(engineConnection);
+        Map<String, String> mapOfTables = new LinkedHashMap<>(this.engineStartup.returnMapOfTables());
+        engineSettings.setDbSchema(tableMapper.mapTables(mapOfTables));
     }
 
 
