@@ -13,8 +13,8 @@ public class LoginHandler {
         try {
             // Split the request string into parts
             String[] parts = request.split(";");
-            String login = parts[1];
-            String password = parts[2];
+            String login = parts[2];
+            String password = parts[3];
 
             // Query the database for the user
             System.out.println("Login: " + login);

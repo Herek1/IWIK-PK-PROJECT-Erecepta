@@ -14,8 +14,8 @@ public class PasswordHandler extends RequestHandler {
         try {
             // Split the request string into parts
             String[] parts = request.split(";");
-            String newPassword = parts[1];
-            String login = parts[2];
+            String newPassword = parts[2];
+            String login = parts[3];
             List<HashMap<String, String>> dbResponse = new ArrayList<>();
 
             dbResponse = changePasswordTest();

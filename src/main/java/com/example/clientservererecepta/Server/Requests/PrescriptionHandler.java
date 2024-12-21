@@ -14,7 +14,7 @@ public class PrescriptionHandler {
         try {
             // Split the request string into parts
             String[] parts = request.split(";");
-            String id = parts[1];
+            String id = parts[2];
 
             List<HashMap<String, String>> dbResponse = generateTestPrescription();
 

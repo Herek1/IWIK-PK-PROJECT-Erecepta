@@ -163,10 +163,7 @@ public class Pharmacist extends User {
 
         if (dataArray != null && dataArray.isArray() && dataArray.size() > 0) {
             for (JsonNode prescriptionNode : dataArray) {
-//                String drugName = prescriptionNode.has("drugName") ? prescriptionNode.get("drugName").asText() : "Unknown Drug";
                 String patientName = prescriptionNode.has("patient") ? prescriptionNode.get("patient").asText() : "Unknown Patient";
-//                String amount = prescriptionNode.has("amount") ? prescriptionNode.get("amount").asText() : "Unknown Amount";
-//                String prescriptionCode = prescriptionNode.has("code") ? prescriptionNode.get("code").asText() : "Unknown Code";
                 String drugs = prescriptionNode.has("drugs") ? prescriptionNode.get("drugs").asText() : "No Drugs Listed";
 
                 // Create UI components for each drug

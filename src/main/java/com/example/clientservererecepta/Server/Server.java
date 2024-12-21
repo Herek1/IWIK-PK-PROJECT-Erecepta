@@ -7,6 +7,7 @@ import java.net.*;
 
 public class Server {
     private static final int PORT = 12345;
+    private static final Logger logger = new Logger();
 
     public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
@@ -31,6 +32,8 @@ public class Server {
 
         @Override
         public void run() {
+            String clientAddress = clientSocket.getInetAddress().getHostAddress();
+            int clientPort = clientSocket.getPort();
             try (
                     BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                     PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)
@@ -38,8 +41,9 @@ public class Server {
                 RequestHandler requestHandler = new RequestHandler();
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
-                    System.out.println("Received from chlient: " + inputLine);
-                    String response = requestHandler.handle(inputLine);
+                    System.out.println("Received \"" + inputLine + "\" from " + clientAddress + ":" + clientPort);
+                    String response = requestHandler.handle(clientPort+";"+inputLine);
+                    logger.saveLogs(inputLine, response);
                     out.println(response);
                 }
             } catch (IOException e) {

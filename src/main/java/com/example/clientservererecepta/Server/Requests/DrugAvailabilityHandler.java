@@ -14,12 +14,12 @@ public class DrugAvailabilityHandler {
             try {
                 // Split the request string into parts
                 String[] parts = request.split(";");
-                String drugName = parts[1];
+                String drugName = parts[2];
                 List<HashMap<String, String>> dbResponse = new ArrayList<>();
                 Boolean checkLocation = false;
-                if(parts.length>2){
+                if(parts.length>3){
                     checkLocation = true;
-                    String location = parts[2];
+                    String location = parts[3];
                 }
 
                 dbResponse = generateTestDrugAvailability();

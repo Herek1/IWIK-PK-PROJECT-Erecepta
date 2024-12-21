@@ -161,6 +161,9 @@ public class ClientTest extends Application {
                 case "patient":
                     user = new Patient(login, userName, userSurname, stageHandler.getClientHandler(), stageHandler);
                     break;
+                case "admin":
+                    user = new Admin(login, userName, userSurname, stageHandler.getClientHandler(), stageHandler);
+                    break;
                 default:
                     Platform.runLater(() -> stageHandler.displayMessage("Error: Unsupported role."));
                     return;

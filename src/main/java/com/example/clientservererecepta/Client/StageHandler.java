@@ -1,5 +1,6 @@
 package com.example.clientservererecepta.Client;
 
+import com.example.clientservererecepta.Client.Util.ShowAlert;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -57,7 +58,13 @@ public class StageHandler {
         password.setPromptText("Password");
 
         Button loginButton = new Button("Login");
-        loginButton.setOnAction(event -> sendLoginData(login, password));
+        loginButton.setOnAction(event -> {
+            if (isNumeric(login.getText())) {
+                sendLoginData(login, password);
+            }else{
+                ShowAlert.error("Pesel must be numeric value");
+            }
+        });
 
         return new VBox(10, messagesArea, login, password, loginButton);
     }
@@ -77,5 +84,14 @@ public class StageHandler {
             messagesArea.appendText(message + "\n");
             messagesArea.setScrollTop(Double.MAX_VALUE);
         });
+    }
+
+    private boolean isNumeric(String str) {
+        try {
+            Integer.parseInt(str); // Try parsing as an integer
+            return true;
+        } catch (NumberFormatException e) {
+            return false; // If it fails, it's not numeric
+        }
     }
 }
