@@ -43,7 +43,7 @@ public class UsersDAO {
         List<HashMap<String, String>> infoList = new ArrayList<>();
 
         HashMap<String, String> staticInfo1 = new HashMap<>(message.getDefaultErrorMessageAsHashMap());
-
+        infoList.add(staticInfo1);
         String query = "UPDATE users SET password = ? WHERE login = ?";
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, newPassword);
@@ -60,7 +60,7 @@ public class UsersDAO {
         } catch (SQLException e) {
             staticInfo1 = errorHandler.handleSQLException(e, staticInfo1, message);
         }
-        infoList.add(staticInfo1);
+        infoList.set(0, staticInfo1);
         return infoList;
     }
 

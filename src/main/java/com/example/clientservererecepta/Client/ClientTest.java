@@ -50,9 +50,7 @@ public class ClientTest extends Application {
     private void handleServerResponse(String message) {
         System.out.println("Received: " + message);
         try {
-            JsonNode response = objectMapper.readTree(message); // Parse JSON response
-
-            // Access the status from the first element in the data array
+            JsonNode response = objectMapper.readTree(message);
             JsonNode dataArray = response.get("data");
             if (dataArray == null || !dataArray.isArray() || dataArray.isEmpty()) {
                 ShowAlert.error("Invalid server response: missing data array.");
@@ -67,14 +65,12 @@ public class ClientTest extends Application {
 
             String status = statusNode.asText();
             if ("Error".equalsIgnoreCase(status)) {
-                // Handle error case
                 String userFriendlyError = dataArray.get(0).get("userFriendlyError").asText();
                 ShowAlert.error(userFriendlyError);
                 return;
             }
 
             if ("Success".equalsIgnoreCase(status)) {
-                // Handle success case
                 String type = response.get("type").asText();
                 System.out.println("type: "+ type);
                 switch (type) {
@@ -138,20 +134,19 @@ public class ClientTest extends Application {
 
     private void handleLoginSuccess(JsonNode response) {
         try {
-            // Get the second object in the data array (index 1) for user details
             JsonNode userData = response.get("data").get(1);
             if (userData == null) {
                 ShowAlert.error("Error: Missing user data in response.");
                 return;
             }
 
-            String userType = userData.get("userType").asText(); // Note the correct field name
+            String userType = userData.get("userType").asText();
             String userName = userData.get("name").asText();
             String userSurname = userData.get("surname").asText();
             int login = Integer.valueOf(userData.get("login").asText());
 
             final User user;
-            switch (userType.toLowerCase()) { // Use case-insensitive comparison for safety
+            switch (userType.toLowerCase()) {
                 case "doctor":
                     user = new Doctor(login, userName, userSurname, stageHandler.getClientHandler(), stageHandler);
                     break;
@@ -170,7 +165,6 @@ public class ClientTest extends Application {
             }
 
             UserSession.setCurrentUser(user);
-            // Switch to the role-specific view on the JavaFX Application Thread
             Platform.runLater(() -> stageHandler.switchToRoleView(user));
 
         } catch (Exception e) {
@@ -181,7 +175,6 @@ public class ClientTest extends Application {
 
 
     private void handlegetUserPrescriptionsSuccess(JsonNode response) {
-        // Assuming the current user is a Patient and we have set it using UserSession
         User currentUser = UserSession.getCurrentUser();
 
         if (currentUser == null) {
@@ -189,17 +182,14 @@ public class ClientTest extends Application {
             return;
         }
 
-        // Extract prescription data from the response
         JsonNode prescriptionsData = response.get("data").get(1); // Assuming prescriptions data is at index 1
         if (prescriptionsData == null || prescriptionsData.isEmpty()) {
             ShowAlert.error("No prescriptions found.");
             return;
         }
         if(currentUser instanceof Patient) {
-            // Process prescriptions and update the patient's view
             Patient currentPatient = (Patient) currentUser;
             Platform.runLater(() -> {
-                // Update the UI with the prescriptions
                 currentPatient.updatePrescriptions(response);
             });
         }
@@ -210,14 +200,6 @@ public class ClientTest extends Application {
             });
         }
     }
-
-
-//    private void showError(String message) {
-//        Platform.runLater(() -> {
-//            Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
-//            alert.showAndWait();
-//        });
-//    }
 
     public static void main(String[] args) {
         launch(args);

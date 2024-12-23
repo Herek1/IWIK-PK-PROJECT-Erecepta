@@ -133,21 +133,17 @@ public class Pharmacist extends User {
         StringBuilder finalInfo = new StringBuilder();
         if (dataArray != null && dataArray.isArray() && dataArray.size() > 0) {
             for (JsonNode prescriptionNode : dataArray) {
-                String drugName = prescriptionNode.has("drugName") ? prescriptionNode.get("drugName").asText() : "Unknown drug";
+                if (!prescriptionNode.has("address")){
+                    continue;
+                }
                 String address = prescriptionNode.has("address") ? prescriptionNode.get("address").asText() : "Unknown address";
                 String amount = prescriptionNode.has("amount") ? prescriptionNode.get("amount").asText() : "Unknown amount";
 
-                if(drugName.equals("Unknown drug")){
-                    continue;
-                }
-
                 StringBuilder drugInfo = new StringBuilder();
-                drugInfo.append("Drug: ").append(drugName).append(" | ")
-                        .append("pharmacy: ").append(address).append(" | ")
+                drugInfo.append("pharmacy: ").append(address).append(" | ")
                         .append("amount: ").append(amount).append("\n")
-                        .append("-----\n");
+                        .append("\n");
 
-                // Use StageHandler to display the prescription info
                 finalInfo.append(drugInfo);
             }
             stageHandler.displayMessage(finalInfo.toString());
@@ -166,14 +162,11 @@ public class Pharmacist extends User {
                 String patientName = prescriptionNode.has("patient") ? prescriptionNode.get("patient").asText() : "Unknown Patient";
                 String drugs = prescriptionNode.has("drugs") ? prescriptionNode.get("drugs").asText() : "No Drugs Listed";
 
-                // Create UI components for each drug
                 Label drugLabel = new Label("Drug: " + drugs + " | Patient: " + patientName);
                 Button sellButton = new Button("Sell");
 
-                // Action for the sell button
                 sellButton.setOnAction(event -> {
-                    // Call method to handle selling the drug
-                    sellDrug("test","test","test");
+                    sellDrug(prescriptionNode.get("code").asText(),prescriptionNode.get("drugs").asText(),prescriptionNode.get("amount").asText());
                 });
 
                 // Add the drug info and button to the layout

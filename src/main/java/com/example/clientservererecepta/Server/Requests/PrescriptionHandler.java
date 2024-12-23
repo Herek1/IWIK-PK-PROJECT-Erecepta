@@ -15,28 +15,21 @@ public class PrescriptionHandler {
             // Split the request string into parts
             String[] parts = request.split(";");
             String id = parts[2];
-
-            List<HashMap<String, String>> dbResponse = generateTestPrescription();
-
-            // Create an ObjectMapper
+            List<HashMap<String, String>> dbResponse = getPrescription(id, usersDAO);
             ObjectMapper objectMapper = new ObjectMapper();
 
-            // Wrap the DB response and additional metadata into a new JSON object
             ObjectNode jsonResponseNode = objectMapper.createObjectNode();
             jsonResponseNode.put("type", "getUserPrescriptions"); // Add request type
             jsonResponseNode.set("data", objectMapper.valueToTree(dbResponse)); // Add the DB response as 'data'
 
-            // Convert the ObjectNode to a JSON string
             return objectMapper.writeValueAsString(jsonResponseNode);
         } catch (Exception e) {
-            // Handle exceptions
             e.printStackTrace();
-            // Return error response
             return ErrorResponseUtil.createErrorResponse("An unexpected error occurred while fetching prescriptions.");
         }
     }
 
-    public static List<HashMap<String, String>> generateTestPrescription() {
+    public static List<HashMap<String, String>> getPrescription(String id, UsersDAO usersDAO) {
         List<HashMap<String, String>> prescriptions = new ArrayList<>();
 
         // Create the first prescription data (HashMap)

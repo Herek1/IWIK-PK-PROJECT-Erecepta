@@ -59,10 +59,10 @@ public class StageHandler {
 
         Button loginButton = new Button("Login");
         loginButton.setOnAction(event -> {
-            if (isNumeric(login.getText())) {
+            if (isNumeric(login.getText()) && !login.getText().isEmpty() && !password.getText().isEmpty()) {
                 sendLoginData(login, password);
             }else{
-                ShowAlert.error("Pesel must be numeric value");
+                ShowAlert.error("Please enter correct data");
             }
         });
 
@@ -88,10 +88,10 @@ public class StageHandler {
 
     private boolean isNumeric(String str) {
         try {
-            Integer.parseInt(str); // Try parsing as an integer
+            Integer.parseInt(str);
             return true;
         } catch (NumberFormatException e) {
-            return false; // If it fails, it's not numeric
+            return false;
         }
     }
 }

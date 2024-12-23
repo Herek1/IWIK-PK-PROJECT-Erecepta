@@ -53,13 +53,11 @@ public class Patient extends User {
                 String code = prescriptionNode.has("code") ? prescriptionNode.get("code").asText() : "Unknown Code";
                 String drugs = prescriptionNode.has("drugs") ? prescriptionNode.get("drugs").asText() : "No Drugs Listed";
                 String date = prescriptionNode.has("date") ? prescriptionNode.get("date").asText() : "Unknown Date";
-                String status = prescriptionNode.has("status") ? prescriptionNode.get("status").asText() : "No Status";
 
                 StringBuilder prescriptionInfo = new StringBuilder();
                 prescriptionInfo.append("Prescription for: ").append(patientName).append("\n")
                         .append("Code: ").append(code).append("\n")
                         .append("Date: ").append(date).append("\n")
-                        .append("Status: ").append(status).append("\n")
                         .append("Drugs:\n").append(drugs).append("\n")
                         .append("-----\n");
 
@@ -111,21 +109,17 @@ public class Patient extends User {
         StringBuilder finalInfo = new StringBuilder();
         if (dataArray != null && dataArray.isArray() && dataArray.size() > 0) {
             for (JsonNode prescriptionNode : dataArray) {
-                String drugName = prescriptionNode.has("drugName") ? prescriptionNode.get("drugName").asText() : "Unknown drug";
+                if (!prescriptionNode.has("address")){
+                    continue;
+                }
                 String address = prescriptionNode.has("address") ? prescriptionNode.get("address").asText() : "Unknown address";
                 String amount = prescriptionNode.has("amount") ? prescriptionNode.get("amount").asText() : "Unknown amount";
 
-                if(drugName.equals("Unknown drug")){
-                    continue;
-                }
-
                 StringBuilder drugInfo = new StringBuilder();
-                drugInfo.append("Drug: ").append(drugName).append(" | ")
-                        .append("pharmacy: ").append(address).append(" | ")
+                drugInfo.append("pharmacy: ").append(address).append(" | ")
                         .append("amount: ").append(amount).append("\n")
-                        .append("-----\n");
+                        .append("\n");
 
-                // Use StageHandler to display the prescription info
                 finalInfo.append(drugInfo);
             }
             stageHandler.displayMessage(finalInfo.toString());
@@ -135,7 +129,7 @@ public class Patient extends User {
     }
 
     private void openChangePasswordScene() {
-        VBox drugLayout = new VBox(10);
+        VBox passwordLayout = new VBox(10);
         Label instructionLabel = new Label("Enter new password");
         TextField newPassowrd = new TextField();
         Button sendRequestButton = new Button("Change password");
@@ -154,14 +148,11 @@ public class Patient extends User {
             }
         });
 
-        // Cancel button to return to the main layout
         cancelButton.setOnAction(event -> stageHandler.setScene(new Scene(generateLayout(), 400, 300)));
-
-        // Add components to layout
-        drugLayout.getChildren().addAll(instructionLabel, newPassowrd, sendRequestButton, drugResultsArea, cancelButton);
+        passwordLayout.getChildren().addAll(instructionLabel, newPassowrd, sendRequestButton, drugResultsArea, cancelButton);
 
         // Set the new scene
-        Scene passwordScene = new Scene(drugLayout, 400, 300);
+        Scene passwordScene = new Scene(passwordLayout, 400, 300);
         stageHandler.setScene(passwordScene);
         stageHandler.displayMessage("");
     }

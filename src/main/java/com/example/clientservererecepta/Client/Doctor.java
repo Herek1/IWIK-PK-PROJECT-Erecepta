@@ -107,14 +107,9 @@ public class Doctor extends User {
                 HashMap<String, String> drugEntry = new HashMap<>();
                 drugEntry.put("drugName", drugNameText);
                 drugEntry.put("amount", amountText);
-
-                // Add to the list
                 drugs.add(drugEntry);
 
-                // Append to the TextArea
                 prescribedDrugs.appendText("Drug: " + drugNameText + ", Amount: " + amountText + "\n");
-
-                // Clear input fields
                 drugName.clear();
                 amount.clear();
             }

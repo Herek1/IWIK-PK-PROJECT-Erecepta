@@ -36,7 +36,7 @@ public class RequestHandler {
                 response = PrescriptionHandler.handle(request, newUsersDAO);
                 break;
             case "checkDrugAvailability":
-                response = DrugAvailabilityHandler.handle(request, newUsersDAO);
+                response = DrugAvailabilityHandler.handle(request, new AvailabilityDrugDAO(newConnection));
                 break;
             case "changePassword":
                 response = PasswordHandler.handle(request, newUsersDAO);

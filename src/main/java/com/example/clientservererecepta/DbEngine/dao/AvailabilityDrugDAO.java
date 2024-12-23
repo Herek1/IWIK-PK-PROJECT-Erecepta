@@ -25,6 +25,7 @@ public class AvailabilityDrugDAO {
     public List<HashMap<String, String>> getAvailabilityByMedicineName(String medicineName) {
         List<HashMap<String, String>> result = new ArrayList<>();
         HashMap<String, String> staticInfo = new HashMap<>(message.getDefaultErrorMessageAsHashMap());
+        result.add(staticInfo);
 
         try {
             List<HashMap<String, String>> medicineResult = medicinesDAO.getMedicineIdByName(medicineName);
@@ -61,7 +62,7 @@ public class AvailabilityDrugDAO {
         }
 
         if (result.isEmpty()) {
-            result.add(staticInfo);
+            result.set(0, staticInfo);
         }
         return result;
     }
