@@ -2,19 +2,24 @@ package com.example.clientservererecepta.Server.Requests;
 
 import com.example.clientservererecepta.DbEngine.dao.UsersDAO;
 import com.example.clientservererecepta.Server.Util.ErrorResponseUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class PrescriptionHandler {
-    public static String handle(String request, UsersDAO usersDAO) {
+    public static String handle(String request, Connection connection) {
+        UsersDAO usersDAO = new UsersDAO(connection);
         try {
-            // Split the request string into parts
-            String[] parts = request.split(";");
-            String id = parts[2];
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(request);
+            String id = root.get("id").asText();
+
             List<HashMap<String, String>> dbResponse = getPrescription(id, usersDAO);
             ObjectMapper objectMapper = new ObjectMapper();
 
@@ -27,6 +32,13 @@ public class PrescriptionHandler {
             e.printStackTrace();
             return ErrorResponseUtil.createErrorResponse("An unexpected error occurred while fetching prescriptions.");
         }
+    }
+
+    public static String addPrescription(String request, Connection connection) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode response = objectMapper.readTree(request);
+        System.out.println(response.toPrettyString());
+        return "";
     }
 
     public static List<HashMap<String, String>> getPrescription(String id, UsersDAO usersDAO) {

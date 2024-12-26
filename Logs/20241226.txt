@@ -1,0 +1,39 @@
+2024-12-26 13:23:52.365;43934;login;There is no error
+2024-12-26 13:23:55.171;43934;changePassword;There is no error
+2024-12-26 13:24:47.848;43934;checkDrugAvailability;There is no error
+2024-12-26 13:25:00.763;43934;getPrescriptions;There is no error
+2024-12-26 13:31:50.272;51272;login;There is no user for that password and login
+2024-12-26 13:31:57.855;51272;login;There is no error
+2024-12-26 13:32:08.883;51272;checkDrugAvailability;There is no error
+2024-12-26 13:32:17.522;51272;changePassword;There is no error
+2024-12-26 13:32:24.569;51272;getPrescriptions;There is no error
+2024-12-26 14:08:04.083;54666;login;There is no error
+2024-12-26 14:14:54.903;37276;login;There is no error
+2024-12-26 14:17:49.974;40728;login;There is no error
+2024-12-26 14:19:39.521;35990;login;There is no error
+2024-12-26 14:22:16.862;40282;login;There is no error
+2024-12-26 14:25:45.308;45036;login;There is no error
+2024-12-26 14:27:56.749;43186;login;There is no error
+2024-12-26 14:36:57.679;51200;{"type":"login","login":"321","password":"test"};There is no error
+2024-12-26 14:41:18.776;34448;{"type":"login","login":"123","password":"test"};There is no user for that password and login
+2024-12-26 14:41:20.75;34448;{"type":"login","login":"123","password":"test1"};There is no error
+2024-12-26 14:42:51.354;55108;{"type":"login","login":"123","password":"test1"};There is no error
+2024-12-26 14:42:53.177;55108;{"type":"changePassword","password":"test","id":123};There is no error
+2024-12-26 14:48:29.378;40372;{"type":"login","login":"123","password":"test"};There is no error
+2024-12-26 14:48:31.067;40372;{"type":"checkDrugAvailability","drugName":"asd"};There is no error
+2024-12-26 14:51:23.739;60558;{"type":"login","login":"1234","password":"test"};There is no error
+2024-12-26 14:53:13.179;42394;{"type":"login","login":"1234","password":"test"};There is no error
+2024-12-26 14:53:14.317;42394;{"type":"getPrescriptions","id":"123"};There is no error
+2024-12-26 14:53:21.732;42394;{"type":"checkDrugAvailability","drugName":"asd"};There is no error
+2024-12-26 14:53:26.833;42394;{"type":"changePassword","password":"test","id":1234};There is no error
+2024-12-26 15:04:01.31;40974;{"type":"login","login":"12345","password":"test"};There is no error
+2024-12-26 15:04:45.961;57774;{"type":"login","login":"12345","password":"test"};There is no error
+2024-12-26 15:04:54.371;57774;{"type":"createUser","pesel":"123456","password":"test","name":"Dr","surname":"Dre","usertype":"doctor","id":12345};A record with the specified unique value already exists.
+2024-12-26 15:06:51.93;45918;{"type":"login","login":"12345","password":"test"};There is no error
+2024-12-26 15:07:05.687;45918;{"type":"createUser","pesel":"123456","password":"test","name":"Dr","surname":"Dre","usertype":"doctor","id":12345};A record with the specified unique value already exists.
+2024-12-26 15:16:54.691;56950;{"type":"login","login":"12345","password":"test"};There is no error
+2024-12-26 15:17:47.224;47942;{"type":"login","login":"12345","password":"test"};There is no error
+2024-12-26 15:21:04.334;35502;{"type":"login","login":"12345","password":"test"};There is no error
+2024-12-26 15:21:39.607;34034;{"type":"login","login":"12345","password":"test"};There is no error
+2024-12-26 15:23:50.006;32788;{"type":"login","login":"12345","password":"test"};There is no error
+2024-12-26 15:23:56.778;32788;{"type":"addDrugToDb","drugName":"test","description":"this is a test","price":"20"};There is no error

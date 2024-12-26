@@ -1,6 +1,8 @@
 package com.example.clientservererecepta.Client;
 
 import com.example.clientservererecepta.Client.Util.ShowAlert;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -70,7 +72,13 @@ public class StageHandler {
     }
 
     private void sendLoginData(TextField login, TextField password) {
-        String loginData = "login;" + login.getText() + ";" + password.getText();
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode jsonResponseNode = objectMapper.createObjectNode();
+        jsonResponseNode.put("type", "login");
+        jsonResponseNode.put("login", login.getText());
+        jsonResponseNode.put("password",password.getText());
+
+        String loginData = jsonResponseNode.toString();
         if (!loginData.isBlank()) {
             clientHandler.sendMessage(loginData);
         } else {

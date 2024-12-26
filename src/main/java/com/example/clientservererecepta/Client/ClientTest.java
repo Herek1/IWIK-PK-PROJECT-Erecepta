@@ -83,11 +83,8 @@ public class ClientTest extends Application {
                     case "checkDrugAvailability":
                         handleCheckDrugAvailability(response);
                         break;
-                    case "changePassword":
-                        ShowAlert.info("Password changed.");
-                        break;
                     default:
-                        ShowAlert.error("Unknown response type: " + type);
+                        ShowAlert.info("Action performed successfully.");
                         break;
                 }
             } else {

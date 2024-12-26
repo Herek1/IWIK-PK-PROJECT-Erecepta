@@ -1,6 +1,8 @@
 package com.example.clientservererecepta.Client;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -25,7 +27,11 @@ public class Patient extends User {
         // Button to check prescriptions
         Button checkPrescriptionsButton = new Button("Check Prescriptions");
         checkPrescriptionsButton.setOnAction(event -> {
-            clientHandler.sendMessage("getPrescriptions;" + getId());
+            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectNode jsonRequestNode = objectMapper.createObjectNode();
+            jsonRequestNode.put("type", "getPrescriptions");
+            jsonRequestNode.put("id",getId());
+            clientHandler.sendMessage(jsonRequestNode.toString());
         });
 
         Button checkDrugAvailabilityButton = new Button("Check Drug Availability");
@@ -81,12 +87,17 @@ public class Patient extends User {
         drugResultsArea.setEditable(false); // Make results area read-only
 
         // Send request to server
-        sendRequestButton.setOnAction(event -> {
+         sendRequestButton.setOnAction(event -> {
             String drugName = drugNameField.getText();
             if (drugName.isEmpty()) {
                 drugResultsArea.setText("Please enter a drug name.");
             } else {
-                clientHandler.sendMessage("checkDrugAvailability;" + drugName);
+                ObjectMapper objectMapper = new ObjectMapper();
+                ObjectNode jsonRequestNode = objectMapper.createObjectNode();
+                jsonRequestNode.put("type", "checkDrugAvailability");
+                jsonRequestNode.put("drugName",drugName);
+
+                clientHandler.sendMessage(jsonRequestNode.toString());
                 drugResultsArea.setText("Checking availability for: " + drugName);
             }
         });
@@ -143,7 +154,12 @@ public class Patient extends User {
             if (passwordText.isEmpty()) {
                 drugResultsArea.setText("Please enter a new password.");
             } else {
-                clientHandler.sendMessage("changePassword;" + passwordText + ";"+getId());
+                ObjectMapper objectMapper = new ObjectMapper();
+                ObjectNode jsonResponseNode = objectMapper.createObjectNode();
+                jsonResponseNode.put("type", "changePassword");
+                jsonResponseNode.put("password",passwordText);
+                jsonResponseNode.put("id",getId());
+                clientHandler.sendMessage(jsonResponseNode.toString());
                 stageHandler.setScene(new Scene(generateLayout(), 400, 300));
             }
         });

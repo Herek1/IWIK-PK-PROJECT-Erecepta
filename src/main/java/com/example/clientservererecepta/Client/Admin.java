@@ -34,13 +34,17 @@ public class Admin extends User {
         changePassword.setOnAction(event -> {
             openChangePasswordScene();
         });
+        Button addDrug = new Button("Add drug");
+        addDrug.setOnAction(event -> {
+            addMedicineScene();
+        });
 
 
         // Use the shared messagesArea from StageHandler
         TextArea messagesArea = stageHandler.getMessagesArea();
         stageHandler.displayMessage("");
 
-        return new VBox(10, welcomeLabel, addUser, changePassword,messagesArea);
+        return new VBox(10, welcomeLabel, addUser, changePassword,addDrug,messagesArea);
     }
 
     private void openChangePasswordScene() {
@@ -103,9 +107,17 @@ public class Admin extends User {
             if(pesel.getText().isEmpty() || password.getText().isEmpty() || name.getText().isEmpty() || surname.getText().isEmpty() || userTypeComboBox.getValue() == null){
                 ShowAlert.error("You did not fill all required fields!");
             }else {
+                ObjectMapper objectMapper = new ObjectMapper();
+                ObjectNode jsonRequestNode = objectMapper.createObjectNode();
+                jsonRequestNode.put("type", "createUser");
+                jsonRequestNode.put("pesel",pesel.getText());
+                jsonRequestNode.put("password",password.getText());
+                jsonRequestNode.put("name",name.getText());
+                jsonRequestNode.put("surname",surname.getText());
+                jsonRequestNode.put("usertype",userTypeComboBox.getValue());
+                jsonRequestNode.put("id",getId());
 
-                clientHandler.sendMessage("createUser;" + pesel.getText() + ";" + password.getText() + ";" + name.getText() + surname.getText() + ";" + userTypeComboBox.getValue() + ";" + getId());
-                ShowAlert.info("Successfully submitted");
+                clientHandler.sendMessage(jsonRequestNode.toString());
                 stageHandler.setScene(new Scene(generateLayout(), 400, 300));
             }
         });
@@ -117,5 +129,57 @@ public class Admin extends User {
         Scene drugScene = new Scene(drugLayout, 400, 600);
         stageHandler.setScene(drugScene);
         stageHandler.displayMessage("");
+    }
+
+    private void addMedicineScene(){
+        VBox drugLayout = new VBox(10);
+        Label drugNameLabel = new Label("Enter drug name");
+        TextField drugName = new TextField();
+
+        Label descriptionLabel = new Label("Enter description");
+        TextField description = new TextField();
+
+        Label priceLabel = new Label("Enter drug price");
+        TextField price = new TextField();
+
+
+        Button sendRequestButton = new Button("Submit");
+        Button cancelButton = new Button("Cancel");
+
+        cancelButton.setOnAction(event -> stageHandler.setScene(new Scene(generateLayout(), 400, 300)));
+
+        sendRequestButton.setOnAction(event ->{
+            if(drugName.getText().isEmpty() || description.getText().isEmpty() || price.getText().isEmpty()) {
+                ShowAlert.error("You did not fill all required fields!");
+            } else if (!isDouble(price.getText())) {
+                ShowAlert.error("Price must be number");
+            }else {
+                ObjectMapper objectMapper = new ObjectMapper();
+                ObjectNode jsonRequestNode = objectMapper.createObjectNode();
+                jsonRequestNode.put("type", "addDrugToDb");
+                jsonRequestNode.put("drugName",drugName.getText());
+                jsonRequestNode.put("description",description.getText());
+                jsonRequestNode.put("price",price.getText());
+
+                clientHandler.sendMessage(jsonRequestNode.toString());
+                stageHandler.setScene(new Scene(generateLayout(), 400, 300));
+            }
+        });
+
+
+        drugLayout.getChildren().addAll(drugNameLabel, drugName, descriptionLabel, description, priceLabel, price, sendRequestButton,cancelButton);
+
+        // Set the new scene
+        Scene drugScene = new Scene(drugLayout, 400, 600);
+        stageHandler.setScene(drugScene);
+        stageHandler.displayMessage("");
+    }
+
+    private boolean isDouble(String input){
+        try{
+            Double.parseDouble(input);
+            return true;
+        }catch (NumberFormatException e){}
+        return false;
     }
 }

@@ -38,7 +38,12 @@ public class Pharmacist extends User {
             if(peselTextField.getText().isEmpty()){
                 ShowAlert.error("You did not fill all required fields");
             }else{
-            clientHandler.sendMessage("getPrescriptions;" + peselTextField.getText());}
+                ObjectMapper objectMapper = new ObjectMapper();
+                ObjectNode jsonRequestNode = objectMapper.createObjectNode();
+                jsonRequestNode.put("type", "getPrescriptions");
+                jsonRequestNode.put("id",peselTextField.getText());
+                clientHandler.sendMessage(jsonRequestNode.toString());
+            }
 
         });
 
@@ -68,13 +73,17 @@ public class Pharmacist extends User {
         TextArea drugResultsArea = stageHandler.getMessagesArea();
         drugResultsArea.setEditable(false); // Make results area read-only
 
-        // Send request to server
         sendRequestButton.setOnAction(event -> {
             String passwordText = newPassowrd.getText();
             if (passwordText.isEmpty()) {
                 drugResultsArea.setText("Please enter a new password.");
             } else {
-                clientHandler.sendMessage("changePassword;" + passwordText + ";"+getId());
+                ObjectMapper objectMapper = new ObjectMapper();
+                ObjectNode jsonResponseNode = objectMapper.createObjectNode();
+                jsonResponseNode.put("type", "changePassword");
+                jsonResponseNode.put("password",passwordText);
+                jsonResponseNode.put("id",getId());
+                clientHandler.sendMessage(jsonResponseNode.toString());
                 stageHandler.setScene(new Scene(generateLayout(), 400, 300));
             }
         });
@@ -110,7 +119,12 @@ public class Pharmacist extends User {
             if (drugName.isEmpty() || location.isEmpty()) {
                 drugResultsArea.setText("Please enter a drug name.");
             } else {
-                clientHandler.sendMessage("checkDrugAvailability;" + drugName+";"+location);
+                ObjectMapper objectMapper = new ObjectMapper();
+                ObjectNode jsonRequestNode = objectMapper.createObjectNode();
+                jsonRequestNode.put("type", "checkDrugAvailability");
+                jsonRequestNode.put("drugName",drugName);
+
+                clientHandler.sendMessage(jsonRequestNode.toString());
                 drugResultsArea.setText("Checking availability for: " + drugName);
             }
         });

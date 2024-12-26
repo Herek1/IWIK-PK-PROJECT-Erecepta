@@ -42,7 +42,7 @@ public class Server {
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
                     System.out.println("Received \"" + inputLine + "\" from " + clientAddress + ":" + clientPort);
-                    String response = requestHandler.handle(clientPort+";"+inputLine);
+                    String response = requestHandler.handle(inputLine);
                     logger.saveLogs((clientPort+";"+inputLine), response);
                     out.println(response);
                 }

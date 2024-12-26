@@ -61,7 +61,12 @@ public class Doctor extends User {
             if (passwordText.isEmpty()) {
                 drugResultsArea.setText("Please enter a new password.");
             } else {
-                clientHandler.sendMessage("changePassword;" + passwordText + ";"+getId());
+                ObjectMapper objectMapper = new ObjectMapper();
+                ObjectNode jsonResponseNode = objectMapper.createObjectNode();
+                jsonResponseNode.put("type", "changePassword");
+                jsonResponseNode.put("password",passwordText);
+                jsonResponseNode.put("id",getId());
+                clientHandler.sendMessage(jsonResponseNode.toString());
                 stageHandler.setScene(new Scene(generateLayout(), 400, 300));
             }
         });
@@ -124,9 +129,9 @@ public class Doctor extends User {
             ObjectNode jsonResponseNode = objectMapper.createObjectNode();
             jsonResponseNode.put("type", "addPrescription");
             jsonResponseNode.put("patient", pesel.getText());
+            jsonResponseNode.put("doctor",this.getId());
             jsonResponseNode.set("drugs", objectMapper.valueToTree(drugs));
             clientHandler.sendMessage(jsonResponseNode.toString());
-            ShowAlert.info("Successfully submitted");
             stageHandler.setScene(new Scene(generateLayout(), 400, 300));
         });
 

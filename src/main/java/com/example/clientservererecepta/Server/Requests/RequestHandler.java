@@ -1,48 +1,49 @@
 package com.example.clientservererecepta.Server.Requests;
 
 import com.example.clientservererecepta.DbEngine.Engine;
-import com.example.clientservererecepta.DbEngine.dao.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class RequestHandler {
     Connection newConnection;
-    UsersDAO newUsersDAO;
     Engine myEngine;
     String response = "";
     public RequestHandler() {
         myEngine = new Engine();
         myEngine.start();
         newConnection = myEngine.returnConnection();
-        newUsersDAO = new UsersDAO(newConnection);
     }
     public String handle(String request) throws IOException {
-        String requestHeader = request.split(";")[1];
-        switch (requestHeader){
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode requestJson = objectMapper.readTree(request);
+
+        // Extract the "type" field from JSON
+        String type = requestJson.get("type").asText();
+        System.out.println("Request type: " + type);
+        switch (type){
             case "login":
-                response = LoginHandler.handle(request, newUsersDAO);
+                response = UserHandler.login(request, newConnection);
+                break;
+            case "createUser":
+                response = UserHandler.addUser(request, newConnection);
                 break;
             case "getPrescriptions":
-                response = PrescriptionHandler.handle(request, newUsersDAO);
+                response = PrescriptionHandler.handle(request, newConnection);
                 break;
             case "checkDrugAvailability":
-                response = DrugAvailabilityHandler.handle(request, new AvailabilityDrugDAO(newConnection));
+                response = DrugAvailabilityHandler.checkDrug(request, newConnection);
                 break;
+            case "addDrugToDb":
+                response = DrugAvailabilityHandler.addDrugToDb(request, newConnection);
+                break; 
             case "changePassword":
-                response = PasswordHandler.handle(request, newUsersDAO);
+                response = UserHandler.changePassword(request, newConnection);
                 break;
             case "addPrescription":
-                response = null;
+                response = PrescriptionHandler.addPrescription(request, newConnection);
                 break;
             default:
                 response = "Invalid request";
