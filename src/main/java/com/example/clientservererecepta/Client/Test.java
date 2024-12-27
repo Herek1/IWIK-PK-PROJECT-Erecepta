@@ -20,15 +20,8 @@ public class Test {
         newConnection = myEngine.returnConnection();
 
         RecipeDAO newDao = new RecipeDAO(newConnection);
-        List<HashMap<String, String>> dbResponse = newDao.getRecipes("123","patient");
-        ObjectMapper objectMapper = new ObjectMapper();
 
 
-        ObjectNode jsonResponseNode = objectMapper.createObjectNode();
-        jsonResponseNode.put("type", "checkPrescription");
-        jsonResponseNode.set("data", objectMapper.valueToTree(dbResponse));
-
-        System.out.println(jsonResponseNode.toPrettyString());
 
 
 

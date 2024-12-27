@@ -30,17 +30,17 @@ public class RequestHandler {
             case "createUser":
                 response = UserHandler.addUser(request, newConnection);
                 break;
+            case "changePassword":
+                response = UserHandler.changePassword(request, newConnection);
+                break;
             case "getPrescriptions":
-                response = PrescriptionHandler.handle(request, newConnection);
+                response = PrescriptionHandler.checkPrescriptions(request, newConnection);
                 break;
             case "checkDrugAvailability":
                 response = DrugAvailabilityHandler.checkDrug(request, newConnection);
                 break;
             case "addDrugToDb":
                 response = DrugAvailabilityHandler.addDrugToDb(request, newConnection);
-                break; 
-            case "changePassword":
-                response = UserHandler.changePassword(request, newConnection);
                 break;
             case "addPrescription":
                 response = PrescriptionHandler.addPrescription(request, newConnection);

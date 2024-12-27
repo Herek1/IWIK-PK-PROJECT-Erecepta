@@ -105,8 +105,6 @@ public class Pharmacist extends User {
         VBox drugLayout = new VBox(10);
         Label instructionLabel = new Label("Enter the drug name to check availability:");
         TextField drugNameField = new TextField();
-        Label locationLabel = new Label("Enter pharmacy address");
-        TextField locationField = new TextField();
         Button sendRequestButton = new Button("Check Availability");
         Button cancelButton = new Button("Cancel");
         TextArea drugResultsArea = stageHandler.getMessagesArea();
@@ -115,8 +113,7 @@ public class Pharmacist extends User {
         // Send request to server
         sendRequestButton.setOnAction(event -> {
             String drugName = drugNameField.getText();
-            String location = locationField.getText();
-            if (drugName.isEmpty() || location.isEmpty()) {
+            if (drugName.isEmpty()) {
                 drugResultsArea.setText("Please enter a drug name.");
             } else {
                 ObjectMapper objectMapper = new ObjectMapper();
@@ -125,7 +122,6 @@ public class Pharmacist extends User {
                 jsonRequestNode.put("drugName",drugName);
 
                 clientHandler.sendMessage(jsonRequestNode.toString());
-                drugResultsArea.setText("Checking availability for: " + drugName);
             }
         });
 
@@ -133,7 +129,7 @@ public class Pharmacist extends User {
         cancelButton.setOnAction(event -> stageHandler.setScene(new Scene(generateLayout(), 400, 300)));
 
         // Add components to layout
-        drugLayout.getChildren().addAll(instructionLabel, drugNameField, locationLabel, locationField, sendRequestButton, drugResultsArea, cancelButton);
+        drugLayout.getChildren().addAll(instructionLabel, drugNameField, sendRequestButton, drugResultsArea, cancelButton);
 
         // Set the new scene
         Scene drugScene = new Scene(drugLayout, 400, 300);

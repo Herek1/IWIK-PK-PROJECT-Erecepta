@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class PrescriptionHandler {
-    public static String handle(String request, Connection connection) {
+    public static String checkPrescriptions(String request, Connection connection) {
         UsersDAO usersDAO = new UsersDAO(connection);
         try {
             ObjectMapper mapper = new ObjectMapper();

@@ -108,7 +108,7 @@ public class ClientTest extends Application {
         // Extract prescription data from the response
         JsonNode prescriptionsData = response.get("data").get(1); // Assuming prescriptions data is at index 1
         if (prescriptionsData == null || prescriptionsData.isEmpty()) {
-            ShowAlert.error("No prescriptions found.");
+            ShowAlert.error("Drug not found.");
             return;
         }
 
