@@ -19,6 +19,7 @@ import java.util.List;
 public class Pharmacist extends User {
     private final ClientHandler clientHandler;
     private final StageHandler stageHandler;
+    private String currectPrescription = "";
 
     public Pharmacist(int id, String name, String surname, ClientHandler clientHandler, StageHandler stageHandler) {
         super(id, name, surname);
@@ -32,16 +33,17 @@ public class Pharmacist extends User {
 
         // Button to check prescriptions
         Button checkPrescriptionsButton = new Button("Check Prescriptions");
-        Label pesel = new Label("Pesel pacjenta");
-        TextField peselTextField = new TextField();
+        Label prescription = new Label("Numer recepty");
+        TextField prescriptionNumberField = new TextField();
         checkPrescriptionsButton.setOnAction(event -> {
-            if(peselTextField.getText().isEmpty()){
+            if(prescriptionNumberField.getText().isEmpty()){
                 ShowAlert.error("You did not fill all required fields");
             }else{
                 ObjectMapper objectMapper = new ObjectMapper();
                 ObjectNode jsonRequestNode = objectMapper.createObjectNode();
-                jsonRequestNode.put("type", "getPrescriptions");
-                jsonRequestNode.put("id",peselTextField.getText());
+                currectPrescription = prescriptionNumberField.getText();
+                jsonRequestNode.put("type", "getPrescriptionsPharmacist");
+                jsonRequestNode.put("id",prescriptionNumberField.getText());
                 clientHandler.sendMessage(jsonRequestNode.toString());
             }
 
@@ -55,13 +57,16 @@ public class Pharmacist extends User {
         changePassword.setOnAction(event -> {
             openChangePasswordScene();
         });
-
+        Button logout = new Button("Log out");
+        logout.setOnAction(event ->{
+            stageHandler.setDefaultView();
+        });
 
         // Use the shared messagesArea from StageHandler
         TextArea messagesArea = stageHandler.getMessagesArea();
         stageHandler.displayMessage("");
 
-        return new VBox(10, welcomeLabel, pesel, peselTextField, checkPrescriptionsButton, checkDrugAvailabilityButton,changePassword, messagesArea);
+        return new VBox(10, welcomeLabel, prescription, prescriptionNumberField, checkPrescriptionsButton, checkDrugAvailabilityButton,changePassword, logout, messagesArea);
     }
 
     private void openChangePasswordScene() {
@@ -167,25 +172,43 @@ public class Pharmacist extends User {
         VBox prescriptionsLayout = new VBox(10); // Use VBox to organize drug entries vertically
         prescriptionsLayout.setSpacing(10);
 
-        if (dataArray != null && dataArray.isArray() && dataArray.size() > 0) {
-            for (JsonNode prescriptionNode : dataArray) {
-                String patientName = prescriptionNode.has("patient") ? prescriptionNode.get("patient").asText() : "Unknown Patient";
-                String drugs = prescriptionNode.has("drugs") ? prescriptionNode.get("drugs").asText() : "No Drugs Listed";
+        if (dataArray != null && dataArray.isArray() && dataArray.size() > 1) { // Ensure there is more than one element to skip the first one
+            for (int i = 1; i < dataArray.size(); i++) { // Start from index 1 to skip the first informational element
+                JsonNode prescriptionNode = dataArray.get(i);
 
-                Label drugLabel = new Label("Drug: " + drugs + " | Patient: " + patientName);
+                String fullFilled = prescriptionNode.get("fulfillMethod").asText();
+                if(fullFilled.equals("Sold")){
+                    continue;
+                }
+                // Extract drug details
+                String drugName = prescriptionNode.get("drugName").asText();
+                String amount = prescriptionNode.get("amount").asText();
+
+                // Create UI elements for the drug info
+                Label drugLabel = new Label("Drug: " + drugName + " | Amount: " + amount);
                 Button sellButton = new Button("Sell");
 
+                // Sell button action
                 sellButton.setOnAction(event -> {
-                    sellDrug(prescriptionNode.get("code").asText(),prescriptionNode.get("drugs").asText(),prescriptionNode.get("amount").asText());
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    ObjectNode jsonRequestNode = objectMapper.createObjectNode();
+                    jsonRequestNode.put("type", "sellDrug");
+                    jsonRequestNode.put("drugName",drugName);
+                    jsonRequestNode.put("recipeId",currectPrescription);
+                    jsonRequestNode.put("pharmacistId",getId());
+                    clientHandler.sendMessage(jsonRequestNode.toString());
                 });
 
-                // Add the drug info and button to the layout
+                // Add drug info and button to the layout
                 prescriptionsLayout.getChildren().addAll(drugLabel, sellButton);
             }
+
+            // Add the cancel button
             Button cancelButton = new Button("Cancel");
             cancelButton.setOnAction(event -> stageHandler.setScene(new Scene(generateLayout(), 400, 300)));
 
             prescriptionsLayout.getChildren().addAll(cancelButton);
+
             // Set the layout into the scene using StageHandler
             Platform.runLater(() -> {
                 Scene prescriptionScene = new Scene(prescriptionsLayout, 400, 600);
@@ -194,11 +217,5 @@ public class Pharmacist extends User {
         } else {
             stageHandler.displayMessage("No prescriptions found.");
         }
-    }
-    private void sellDrug(String prescriptionCode, String drugName, String amount) {
-        // Send a request to the server to update the database for the sold drug
-        String message = String.format("sellDrug;%s;%s;%s", prescriptionCode, drugName, amount);
-        clientHandler.sendMessage(message);
-
     }
 }

@@ -29,7 +29,7 @@ public class Patient extends User {
         checkPrescriptionsButton.setOnAction(event -> {
             ObjectMapper objectMapper = new ObjectMapper();
             ObjectNode jsonRequestNode = objectMapper.createObjectNode();
-            jsonRequestNode.put("type", "getPrescriptions");
+            jsonRequestNode.put("type", "getPrescriptionsPatient");
             jsonRequestNode.put("id",getId());
             clientHandler.sendMessage(jsonRequestNode.toString());
         });
@@ -43,33 +43,69 @@ public class Patient extends User {
             openChangePasswordScene();
         });
 
+        Button logout = new Button("Log out");
+        logout.setOnAction(event ->{
+                stageHandler.setDefaultView();
+         });
+
 
         // Use the shared messagesArea from StageHandler
         TextArea messagesArea = stageHandler.getMessagesArea();
         stageHandler.displayMessage("");
-        return new VBox(10, welcomeLabel, checkPrescriptionsButton, checkDrugAvailabilityButton,changePassword, messagesArea);
+        return new VBox(10, welcomeLabel, checkPrescriptionsButton, checkDrugAvailabilityButton,changePassword,logout , messagesArea);
     }
 
     public void updatePrescriptions(JsonNode response) {
         JsonNode dataArray = response.get("data");
         StringBuilder finalInfo = new StringBuilder();
         if (dataArray != null && dataArray.isArray() && dataArray.size() > 0) {
-            for (JsonNode prescriptionNode : dataArray) {
-                String patientName = prescriptionNode.has("patient") ? prescriptionNode.get("patient").asText() : "Unknown Patient";
-                String code = prescriptionNode.has("code") ? prescriptionNode.get("code").asText() : "Unknown Code";
-                String drugs = prescriptionNode.has("drugs") ? prescriptionNode.get("drugs").asText() : "No Drugs Listed";
-                String date = prescriptionNode.has("date") ? prescriptionNode.get("date").asText() : "Unknown Date";
+            for (int i = 1; i < dataArray.size(); i++) {
+                JsonNode prescriptionNode = dataArray.get(i);
 
+                // Safe retrieval of fields with default values in case they're missing
+                String code = prescriptionNode.has("recipeId") ? prescriptionNode.get("recipeId").asText() : "N/A";
+                String doctorName = prescriptionNode.has("doctorName") ? prescriptionNode.get("doctorName").asText() : "Unknown";
+                String doctorSurname = prescriptionNode.has("doctorSurname") ? prescriptionNode.get("doctorSurname").asText() : "Unknown";
+                String date = prescriptionNode.has("date") ? prescriptionNode.get("date").asText() : "N/A";
+
+                // Initialize StringBuilder to store prescription info
                 StringBuilder prescriptionInfo = new StringBuilder();
-                prescriptionInfo.append("Prescription for: ").append(patientName).append("\n")
-                        .append("Code: ").append(code).append("\n")
+                prescriptionInfo.append("Prescription: ").append(code).append("\n")
                         .append("Date: ").append(date).append("\n")
-                        .append("Drugs:\n").append(drugs).append("\n")
-                        .append("-----\n");
+                        .append("Doctor: ").append(doctorName).append(" ").append(doctorSurname).append("\n");
 
-                // Use StageHandler to display the prescription info
+                // Get the drugs node and process each drug
+                JsonNode drugsArray = prescriptionNode.get("drugs");
+                if (drugsArray != null && drugsArray.isArray()) {
+                    StringBuilder drugsInfo = new StringBuilder();
+                    for (int j = 1; j < drugsArray.size(); j++) {
+                        JsonNode drugNode = drugsArray.get(j);
+                        // Safe retrieval of drug fields
+                        String drugName = drugNode.has("drugName") ? drugNode.get("drugName").asText() : "Unknown Drug";
+                        String amount = drugNode.has("amount") ? drugNode.get("amount").asText() : "N/A";
+                        String fulfillMethod = drugNode.has("fulfillMethod") ? drugNode.get("fulfillMethod").asText() : "Unknown";
+
+                        // Display only if fulfillMethod is not "Sold"
+                        if (!"Sold".equals(fulfillMethod)) {
+                            drugsInfo.append("   ").append(drugName)
+                                    .append(", Amount: ").append(amount)
+                                    .append("\n");
+                        }
+                    }
+
+                    // If there are drugs info, append it
+                    if (drugsInfo.length() > 0) {
+                        prescriptionInfo.append("Drugs:\n").append(drugsInfo);
+                    } else {
+                        prescriptionInfo.append("No drugs to display.\n");
+                    }
+                }
+
+                prescriptionInfo.append("\n");
                 finalInfo.append(prescriptionInfo);
             }
+
+            // Display the final message using StageHandler
             stageHandler.displayMessage(finalInfo.toString());
         } else {
             stageHandler.displayMessage("No prescriptions found.");

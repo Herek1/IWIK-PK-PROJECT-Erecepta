@@ -38,13 +38,16 @@ public class Admin extends User {
         addDrug.setOnAction(event -> {
             addMedicineScene();
         });
-
+        Button logout = new Button("Log out");
+        logout.setOnAction(event ->{
+            stageHandler.setDefaultView();
+        });
 
         // Use the shared messagesArea from StageHandler
         TextArea messagesArea = stageHandler.getMessagesArea();
         stageHandler.displayMessage("");
 
-        return new VBox(10, welcomeLabel, addUser, changePassword,addDrug,messagesArea);
+        return new VBox(10, welcomeLabel, addUser, changePassword,addDrug,logout,messagesArea);
     }
 
     private void openChangePasswordScene() {

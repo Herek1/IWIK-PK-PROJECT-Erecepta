@@ -33,8 +33,14 @@ public class RequestHandler {
             case "changePassword":
                 response = UserHandler.changePassword(request, newConnection);
                 break;
-            case "getPrescriptions":
-                response = PrescriptionHandler.checkPrescriptions(request, newConnection);
+            case "getPrescriptionsPharmacist":
+                response = PrescriptionHandler.checkPrescriptionsById(request, newConnection);
+                break;
+            case "getPrescriptionsPatient":
+                response = PrescriptionHandler.checkPrescriptionsByUser(request, newConnection);
+                break;
+            case "sellDrug":
+                response = PrescriptionHandler.sellDrug(request, newConnection);
                 break;
             case "checkDrugAvailability":
                 response = DrugAvailabilityHandler.checkDrug(request, newConnection);

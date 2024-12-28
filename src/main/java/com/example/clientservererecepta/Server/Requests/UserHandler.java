@@ -68,7 +68,6 @@ public class UserHandler {
             String usertype = root.get("usertype").asText();
             String name = root.get("name").asText();
             String surname = root.get("surname").asText();
-            String adminId = root.get("id").asText();
 
 
             List<HashMap<String, String>> dbResponse = usersDAO.createUser(pesel, password, usertype, name, surname);
