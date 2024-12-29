@@ -218,4 +218,12 @@ public class Pharmacist extends User {
             stageHandler.displayMessage("No prescriptions found.");
         }
     }
+
+    public void updateDrugSold(JsonNode response) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode jsonRequestNode = objectMapper.createObjectNode();
+        jsonRequestNode.put("type", "getPrescriptionsPharmacist");
+        jsonRequestNode.put("id",currectPrescription);
+        clientHandler.sendMessage(jsonRequestNode.toString());
+    }
 }

@@ -83,6 +83,8 @@ public class ClientTest extends Application {
                     case "checkDrugAvailability":
                         handleCheckDrugAvailability(response);
                         break;
+                    case "soldDrug":
+                        handleSoldDrug(response);
                     default:
                         ShowAlert.info("Action performed successfully.");
                         break;
@@ -194,6 +196,20 @@ public class ClientTest extends Application {
             Pharmacist currentPharmacist = (Pharmacist) currentUser;
             Platform.runLater(() -> {
                 currentPharmacist.updatePrescriptions(response);
+            });
+        }
+    }
+
+    private void handleSoldDrug (JsonNode response){
+        User currentUser = UserSession.getCurrentUser();
+        if (currentUser == null) {
+            ShowAlert.error("No logged-in patient found.");
+            return;
+        }
+        if (currentUser instanceof Pharmacist) {
+            Pharmacist currentPharmacist = (Pharmacist) currentUser;
+            Platform.runLater(() -> {
+                currentPharmacist.updateDrugSold(response);
             });
         }
     }
