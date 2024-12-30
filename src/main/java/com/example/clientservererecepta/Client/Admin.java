@@ -1,8 +1,8 @@
 package com.example.clientservererecepta.Client;
 
-import com.example.clientservererecepta.Client.Util.ShowAlert;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
@@ -24,165 +24,207 @@ public class Admin extends User {
     @Override
     public VBox generateLayout() {
         Label welcomeLabel = new Label("Welcome, " + toString());
+        welcomeLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
+        Button addUserButton = new Button("Add User");
+        addUserButton.setMaxWidth(Double.MAX_VALUE);
+        addUserButton.setStyle("-fx-font-size: 14px;");
+        addUserButton.setOnAction(event -> openAddUserScene());
 
-        Button addUser = new Button("Add user");
-        addUser.setOnAction(event -> {
-            addUserScene();
-        });
-        Button changePassword = new Button("Change Password");
-        changePassword.setOnAction(event -> {
-            openChangePasswordScene();
-        });
-        Button addDrug = new Button("Add drug");
-        addDrug.setOnAction(event -> {
-            addMedicineScene();
-        });
-        Button logout = new Button("Log out");
-        logout.setOnAction(event ->{
-            stageHandler.setDefaultView();
-        });
+        Button changePasswordButton = new Button("Change Password");
+        changePasswordButton.setMaxWidth(Double.MAX_VALUE);
+        changePasswordButton.setStyle("-fx-font-size: 14px;");
+        changePasswordButton.setOnAction(event -> openChangePasswordScene());
 
-        // Use the shared messagesArea from StageHandler
+        Button addDrugButton = new Button("Add Drug");
+        addDrugButton.setMaxWidth(Double.MAX_VALUE);
+        addDrugButton.setStyle("-fx-font-size: 14px;");
+        addDrugButton.setOnAction(event -> openAddDrugScene());
+
+        Button logoutButton = new Button("Log Out");
+        logoutButton.setMaxWidth(Double.MAX_VALUE);
+        logoutButton.setStyle("-fx-font-size: 14px;");
+        logoutButton.setOnAction(event -> stageHandler.setDefaultView());
+
         TextArea messagesArea = stageHandler.getMessagesArea();
-        stageHandler.displayMessage("");
 
-        return new VBox(10, welcomeLabel, addUser, changePassword,addDrug,logout,messagesArea);
+        VBox layout = new VBox(15, welcomeLabel, addUserButton, changePasswordButton, addDrugButton, logoutButton, messagesArea);
+        layout.setPadding(new Insets(15));
+        layout.setSpacing(10);
+
+        return layout;
     }
 
     private void openChangePasswordScene() {
-        VBox drugLayout = new VBox(10);
-        Label instructionLabel = new Label("Enter new password");
-        TextField newPassowrd = new TextField();
-        Button sendRequestButton = new Button("Change password");
-        Button cancelButton = new Button("Cancel");
-        TextArea drugResultsArea = stageHandler.getMessagesArea();
-        drugResultsArea.setEditable(false); // Make results area read-only
+        VBox passwordLayout = new VBox(15);
+        passwordLayout.setPadding(new Insets(15));
 
-        // Send request to server
-        sendRequestButton.setOnAction(event -> {
-            String passwordText = newPassowrd.getText();
+        Label instructionLabel = new Label("Enter New Password:");
+        instructionLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+        TextField newPasswordField = new TextField();
+        newPasswordField.setPromptText("New Password");
+        newPasswordField.setStyle("-fx-font-size: 14px;");
+
+        Button submitButton = new Button("Change Password");
+        submitButton.setStyle("-fx-font-size: 14px;");
+
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setStyle("-fx-font-size: 14px;");
+
+        submitButton.setOnAction(event -> {
+            String passwordText = newPasswordField.getText();
             if (passwordText.isEmpty()) {
-                drugResultsArea.setText("Please enter a new password.");
+                stageHandler.displayMessage("Please enter a new password.");
             } else {
-                clientHandler.sendMessage("changePassword;" + passwordText + ";"+getId());
+                ObjectMapper objectMapper = new ObjectMapper();
+                ObjectNode jsonRequestNode = objectMapper.createObjectNode();
+                jsonRequestNode.put("type", "changePassword");
+                jsonRequestNode.put("password", passwordText);
+                jsonRequestNode.put("id", getId());
+                clientHandler.sendMessage(jsonRequestNode.toString());
                 stageHandler.setScene(new Scene(generateLayout(), 400, 300));
             }
         });
 
-        // Cancel button to return to the main layout
         cancelButton.setOnAction(event -> stageHandler.setScene(new Scene(generateLayout(), 400, 300)));
 
-        // Add components to layout
-        drugLayout.getChildren().addAll(instructionLabel, newPassowrd, sendRequestButton, drugResultsArea, cancelButton);
+        passwordLayout.getChildren().addAll(instructionLabel, newPasswordField, submitButton, cancelButton);
 
-        // Set the new scene
-        Scene passwordScene = new Scene(drugLayout, 400, 300);
+        Scene passwordScene = new Scene(passwordLayout, 400, 300);
         stageHandler.setScene(passwordScene);
-        stageHandler.displayMessage("");
     }
 
-    private void addUserScene() {
-        VBox drugLayout = new VBox(10);
-        Label peselLabel = new Label("Eneter user pesel");
-        TextField pesel = new TextField();
+    private void openAddUserScene() {
+        VBox addUserLayout = new VBox(15);
+        addUserLayout.setPadding(new Insets(15));
 
-        Label passwordLabel = new Label("Enter user password");
-        TextField password = new TextField();
+        Label peselLabel = new Label("Enter User PESEL:");
+        peselLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
 
-        Label nameLabel = new Label("Enter user name");
-        TextField name = new TextField();
+        TextField peselField = new TextField();
+        peselField.setPromptText("PESEL");
+        peselField.setStyle("-fx-font-size: 14px;");
 
-        Label surnameLabel = new Label("Enter user surname");
-        TextField surname = new TextField();
+        Label passwordLabel = new Label("Enter User Password:");
+        passwordLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+        TextField passwordField = new TextField();
+        passwordField.setPromptText("Password");
+        passwordField.setStyle("-fx-font-size: 14px;");
+
+        Label nameLabel = new Label("Enter User Name:");
+        nameLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+        TextField nameField = new TextField();
+        nameField.setPromptText("Name");
+        nameField.setStyle("-fx-font-size: 14px;");
+
+        Label surnameLabel = new Label("Enter User Surname:");
+        surnameLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+        TextField surnameField = new TextField();
+        surnameField.setPromptText("Surname");
+        surnameField.setStyle("-fx-font-size: 14px;");
 
         ComboBox<String> userTypeComboBox = new ComboBox<>();
-        userTypeComboBox.getItems().addAll("doctor", "pharmacist", "patient", "admin"); // Add options to the dropdown
-        userTypeComboBox.setPromptText("Choose a user type");
+        userTypeComboBox.getItems().addAll("Doctor", "Pharmacist", "Patient", "Admin");
+        userTypeComboBox.setPromptText("Choose a User Type");
+        userTypeComboBox.setStyle("-fx-font-size: 14px;");
 
+        Button submitButton = new Button("Add User");
+        submitButton.setStyle("-fx-font-size: 14px;");
 
-        Button sendRequestButton = new Button("Submit");
         Button cancelButton = new Button("Cancel");
+        cancelButton.setStyle("-fx-font-size: 14px;");
 
-        cancelButton.setOnAction(event -> stageHandler.setScene(new Scene(generateLayout(), 400, 300)));
-
-        sendRequestButton.setOnAction(event ->{
-            if(pesel.getText().isEmpty() || password.getText().isEmpty() || name.getText().isEmpty() || surname.getText().isEmpty() || userTypeComboBox.getValue() == null){
-                ShowAlert.error("You did not fill all required fields!");
-            }else {
+        submitButton.setOnAction(event -> {
+            if (peselField.getText().isEmpty() || passwordField.getText().isEmpty() || nameField.getText().isEmpty() || surnameField.getText().isEmpty() || userTypeComboBox.getValue() == null) {
+                stageHandler.displayMessage("Please fill in all fields.");
+            } else {
                 ObjectMapper objectMapper = new ObjectMapper();
                 ObjectNode jsonRequestNode = objectMapper.createObjectNode();
                 jsonRequestNode.put("type", "createUser");
-                jsonRequestNode.put("pesel",pesel.getText());
-                jsonRequestNode.put("password",password.getText());
-                jsonRequestNode.put("name",name.getText());
-                jsonRequestNode.put("surname",surname.getText());
-                jsonRequestNode.put("usertype",userTypeComboBox.getValue());
-                jsonRequestNode.put("id",getId());
-
+                jsonRequestNode.put("pesel", peselField.getText());
+                jsonRequestNode.put("password", passwordField.getText());
+                jsonRequestNode.put("name", nameField.getText());
+                jsonRequestNode.put("surname", surnameField.getText());
+                jsonRequestNode.put("usertype", userTypeComboBox.getValue());
                 clientHandler.sendMessage(jsonRequestNode.toString());
                 stageHandler.setScene(new Scene(generateLayout(), 400, 300));
             }
         });
-
-
-        drugLayout.getChildren().addAll(peselLabel, pesel, passwordLabel, password, nameLabel, name, surnameLabel, surname, userTypeComboBox, sendRequestButton,cancelButton);
-
-        // Set the new scene
-        Scene drugScene = new Scene(drugLayout, 400, 600);
-        stageHandler.setScene(drugScene);
-        stageHandler.displayMessage("");
-    }
-
-    private void addMedicineScene(){
-        VBox drugLayout = new VBox(10);
-        Label drugNameLabel = new Label("Enter drug name");
-        TextField drugName = new TextField();
-
-        Label descriptionLabel = new Label("Enter description");
-        TextField description = new TextField();
-
-        Label priceLabel = new Label("Enter drug price");
-        TextField price = new TextField();
-
-
-        Button sendRequestButton = new Button("Submit");
-        Button cancelButton = new Button("Cancel");
 
         cancelButton.setOnAction(event -> stageHandler.setScene(new Scene(generateLayout(), 400, 300)));
 
-        sendRequestButton.setOnAction(event ->{
-            if(drugName.getText().isEmpty() || description.getText().isEmpty() || price.getText().isEmpty()) {
-                ShowAlert.error("You did not fill all required fields!");
-            } else if (!isDouble(price.getText())) {
-                ShowAlert.error("Price must be number");
-            }else {
+        addUserLayout.getChildren().addAll(peselLabel, peselField, passwordLabel, passwordField, nameLabel, nameField, surnameLabel, surnameField, userTypeComboBox, submitButton, cancelButton);
+
+        Scene addUserScene = new Scene(addUserLayout, 400, 600);
+        stageHandler.setScene(addUserScene);
+    }
+
+    private void openAddDrugScene() {
+        VBox addDrugLayout = new VBox(15);
+        addDrugLayout.setPadding(new Insets(15));
+
+        Label drugNameLabel = new Label("Enter Drug Name:");
+        drugNameLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+        TextField drugNameField = new TextField();
+        drugNameField.setPromptText("Drug Name");
+        drugNameField.setStyle("-fx-font-size: 14px;");
+
+        Label descriptionLabel = new Label("Enter Description:");
+        descriptionLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+        TextField descriptionField = new TextField();
+        descriptionField.setPromptText("Description");
+        descriptionField.setStyle("-fx-font-size: 14px;");
+
+        Label priceLabel = new Label("Enter Drug Price:");
+        priceLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+        TextField priceField = new TextField();
+        priceField.setPromptText("Price");
+        priceField.setStyle("-fx-font-size: 14px;");
+
+        Button submitButton = new Button("Add Drug");
+        submitButton.setStyle("-fx-font-size: 14px;");
+
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setStyle("-fx-font-size: 14px;");
+
+        submitButton.setOnAction(event -> {
+            if (drugNameField.getText().isEmpty() || descriptionField.getText().isEmpty() || priceField.getText().isEmpty()) {
+                stageHandler.displayMessage("Please fill in all fields.");
+            } else if (!isDouble(priceField.getText())) {
+                stageHandler.displayMessage("Price must be a number.");
+            } else {
                 ObjectMapper objectMapper = new ObjectMapper();
                 ObjectNode jsonRequestNode = objectMapper.createObjectNode();
                 jsonRequestNode.put("type", "addDrugToDb");
-                jsonRequestNode.put("drugName",drugName.getText());
-                jsonRequestNode.put("description",description.getText());
-                jsonRequestNode.put("price",price.getText());
-
+                jsonRequestNode.put("drugName", drugNameField.getText());
+                jsonRequestNode.put("description", descriptionField.getText());
+                jsonRequestNode.put("price", priceField.getText());
                 clientHandler.sendMessage(jsonRequestNode.toString());
                 stageHandler.setScene(new Scene(generateLayout(), 400, 300));
             }
         });
 
+        cancelButton.setOnAction(event -> stageHandler.setScene(new Scene(generateLayout(), 400, 300)));
 
-        drugLayout.getChildren().addAll(drugNameLabel, drugName, descriptionLabel, description, priceLabel, price, sendRequestButton,cancelButton);
+        addDrugLayout.getChildren().addAll(drugNameLabel, drugNameField, descriptionLabel, descriptionField, priceLabel, priceField, submitButton, cancelButton);
 
-        // Set the new scene
-        Scene drugScene = new Scene(drugLayout, 400, 600);
-        stageHandler.setScene(drugScene);
-        stageHandler.displayMessage("");
+        Scene addDrugScene = new Scene(addDrugLayout, 400, 600);
+        stageHandler.setScene(addDrugScene);
     }
 
-    private boolean isDouble(String input){
-        try{
+    private boolean isDouble(String input) {
+        try {
             Double.parseDouble(input);
             return true;
-        }catch (NumberFormatException e){}
-        return false;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 }

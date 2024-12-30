@@ -1,13 +1,10 @@
 package com.example.clientservererecepta.Client;
 
-import com.example.clientservererecepta.Client.Util.ShowAlert;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
@@ -27,123 +24,146 @@ public class Doctor extends User {
     @Override
     public VBox generateLayout() {
         Label welcomeLabel = new Label("Welcome, " + toString());
+        welcomeLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
+        Button createPrescriptionButton = new Button("Create Prescription");
+        createPrescriptionButton.setMaxWidth(Double.MAX_VALUE);
+        createPrescriptionButton.setStyle("-fx-font-size: 14px;");
+        createPrescriptionButton.setOnAction(event -> openCreatePrescriptionScene());
 
-        Button createPrescription = new Button("Create prescription");
-        createPrescription.setOnAction(event -> {
-            openCreatePrescriptionScene();
-        });
-        Button changePassword = new Button("Change Password");
-        changePassword.setOnAction(event -> {
-            openChangePasswordScene();
-        });
-        Button logout = new Button("Log out");
-        logout.setOnAction(event ->{
-            stageHandler.setDefaultView();
-        });
+        Button changePasswordButton = new Button("Change Password");
+        changePasswordButton.setMaxWidth(Double.MAX_VALUE);
+        changePasswordButton.setStyle("-fx-font-size: 14px;");
+        changePasswordButton.setOnAction(event -> openChangePasswordScene());
 
-        // Use the shared messagesArea from StageHandler
+        Button logoutButton = new Button("Log Out");
+        logoutButton.setMaxWidth(Double.MAX_VALUE);
+        logoutButton.setStyle("-fx-font-size: 14px;");
+        logoutButton.setOnAction(event -> stageHandler.setDefaultView());
+
         TextArea messagesArea = stageHandler.getMessagesArea();
-        stageHandler.displayMessage("");
 
-        return new VBox(10, welcomeLabel, createPrescription, changePassword, logout,messagesArea);
+        VBox layout = new VBox(15, welcomeLabel, createPrescriptionButton, changePasswordButton, logoutButton, messagesArea);
+        layout.setPadding(new Insets(15));
+        layout.setSpacing(10);
+
+        return layout;
     }
 
     private void openChangePasswordScene() {
-        VBox drugLayout = new VBox(10);
-        Label instructionLabel = new Label("Enter new password");
-        TextField newPassowrd = new TextField();
-        Button sendRequestButton = new Button("Change password");
-        Button cancelButton = new Button("Cancel");
-        TextArea drugResultsArea = stageHandler.getMessagesArea();
-        drugResultsArea.setEditable(false); // Make results area read-only
+        VBox passwordLayout = new VBox(15);
+        passwordLayout.setPadding(new Insets(15));
 
-        // Send request to server
+        Label instructionLabel = new Label("Enter New Password:");
+        instructionLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+        TextField newPasswordField = new TextField();
+        newPasswordField.setPromptText("New Password");
+        newPasswordField.setStyle("-fx-font-size: 14px;");
+
+        Button sendRequestButton = new Button("Change Password");
+        sendRequestButton.setStyle("-fx-font-size: 14px;");
+
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setStyle("-fx-font-size: 14px;");
+
         sendRequestButton.setOnAction(event -> {
-            String passwordText = newPassowrd.getText();
+            String passwordText = newPasswordField.getText();
             if (passwordText.isEmpty()) {
-                drugResultsArea.setText("Please enter a new password.");
+                stageHandler.displayMessage("Please enter a new password.");
             } else {
                 ObjectMapper objectMapper = new ObjectMapper();
                 ObjectNode jsonResponseNode = objectMapper.createObjectNode();
                 jsonResponseNode.put("type", "changePassword");
-                jsonResponseNode.put("password",passwordText);
-                jsonResponseNode.put("id",getId());
+                jsonResponseNode.put("password", passwordText);
+                jsonResponseNode.put("id", getId());
                 clientHandler.sendMessage(jsonResponseNode.toString());
                 stageHandler.setScene(new Scene(generateLayout(), 400, 300));
             }
         });
 
-        // Cancel button to return to the main layout
         cancelButton.setOnAction(event -> stageHandler.setScene(new Scene(generateLayout(), 400, 300)));
 
-        // Add components to layout
-        drugLayout.getChildren().addAll(instructionLabel, newPassowrd, sendRequestButton, drugResultsArea, cancelButton);
+        passwordLayout.getChildren().addAll(instructionLabel, newPasswordField, sendRequestButton, cancelButton);
 
-        // Set the new scene
-        Scene passwordScene = new Scene(drugLayout, 400, 300);
+        Scene passwordScene = new Scene(passwordLayout, 400, 300);
         stageHandler.setScene(passwordScene);
-        stageHandler.displayMessage("");
     }
 
-    private void openCreatePrescriptionScene(){
-        VBox drugLayout = new VBox(10);
-        Label peselLabel = new Label("Eneter patient pesel");
-        TextField pesel = new TextField();
+    private void openCreatePrescriptionScene() {
+        VBox prescriptionLayout = new VBox(15);
+        prescriptionLayout.setPadding(new Insets(15));
 
-        Label drugLabel = new Label("Enter drug name");
-        TextField drugName = new TextField();
-        Label drugAmmountLabel = new Label("Enter ammount");
-        TextField amount = new TextField();
+        Label peselLabel = new Label("Enter Patient PESEL:");
+        peselLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
 
-        Button addDrug = new Button("add drug");
+        TextField peselField = new TextField();
+        peselField.setPromptText("Patient PESEL");
+        peselField.setStyle("-fx-font-size: 14px;");
 
-        Button sendRequestButton = new Button("Submit");
-        Button cancelButton = new Button("Cancel");
-        TextArea prescribedDrugs = stageHandler.getMessagesArea();
-        prescribedDrugs.setEditable(false);
+        Label drugLabel = new Label("Enter Drug Name:");
+        drugLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+        TextField drugNameField = new TextField();
+        drugNameField.setPromptText("Drug Name");
+        drugNameField.setStyle("-fx-font-size: 14px;");
+
+        Label drugAmountLabel = new Label("Enter Amount:");
+        drugAmountLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+        TextField drugAmountField = new TextField();
+        drugAmountField.setPromptText("Amount");
+        drugAmountField.setStyle("-fx-font-size: 14px;");
+
+        Button addDrugButton = new Button("Add Drug");
+        addDrugButton.setStyle("-fx-font-size: 14px;");
+
+        TextArea prescribedDrugsArea = new TextArea();
+        prescribedDrugsArea.setEditable(false);
+        prescribedDrugsArea.setWrapText(true);
+        prescribedDrugsArea.setStyle("-fx-font-size: 14px;");
+        prescribedDrugsArea.setPrefHeight(200);
 
         List<HashMap<String, String>> drugs = new ArrayList<>();
 
-        addDrug.setOnAction(event -> {
-            String drugNameText = drugName.getText();
-            String amountText = amount.getText();
+        addDrugButton.setOnAction(event -> {
+            String drugName = drugNameField.getText();
+            String amount = drugAmountField.getText();
 
-            if (drugNameText.isEmpty() || amountText.isEmpty()) {
-                ShowAlert.error("You did not fill all required fields");
+            if (drugName.isEmpty() || amount.isEmpty()) {
+                stageHandler.displayMessage("Please fill in all fields.");
             } else {
                 HashMap<String, String> drugEntry = new HashMap<>();
-                drugEntry.put("drugName", drugNameText);
-                drugEntry.put("amount", amountText);
+                drugEntry.put("drugName", drugName);
+                drugEntry.put("amount", amount);
                 drugs.add(drugEntry);
 
-                prescribedDrugs.appendText("Drug: " + drugNameText + ", Amount: " + amountText + "\n");
-                drugName.clear();
-                amount.clear();
+                prescribedDrugsArea.appendText("Drug: " + drugName + ", Amount: " + amount + "\n");
+                drugNameField.clear();
+                drugAmountField.clear();
             }
         });
 
-        cancelButton.setOnAction(event -> stageHandler.setScene(new Scene(generateLayout(), 400, 300)));
-
-        sendRequestButton.setOnAction(event ->{
+        Button submitButton = new Button("Submit Prescription");
+        submitButton.setStyle("-fx-font-size: 14px;");
+        submitButton.setOnAction(event -> {
             ObjectMapper objectMapper = new ObjectMapper();
-
-            // Wrap the DB response and additional metadata into a new JSON object
-            ObjectNode jsonResponseNode = objectMapper.createObjectNode();
-            jsonResponseNode.put("type", "addPrescription");
-            jsonResponseNode.put("patient", pesel.getText());
-            jsonResponseNode.put("doctor",this.getId());
-            jsonResponseNode.set("drugs", objectMapper.valueToTree(drugs));
-            clientHandler.sendMessage(jsonResponseNode.toString());
+            ObjectNode jsonRequestNode = objectMapper.createObjectNode();
+            jsonRequestNode.put("type", "addPrescription");
+            jsonRequestNode.put("patient", peselField.getText());
+            jsonRequestNode.put("doctor", this.getId());
+            jsonRequestNode.set("drugs", objectMapper.valueToTree(drugs));
+            clientHandler.sendMessage(jsonRequestNode.toString());
             stageHandler.setScene(new Scene(generateLayout(), 400, 300));
         });
 
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setStyle("-fx-font-size: 14px;");
+        cancelButton.setOnAction(event -> stageHandler.setScene(new Scene(generateLayout(), 400, 300)));
 
-        drugLayout.getChildren().addAll(peselLabel, pesel, drugLabel, drugName, drugAmmountLabel, amount, addDrug,prescribedDrugs, sendRequestButton,cancelButton);
+        prescriptionLayout.getChildren().addAll(peselLabel, peselField, drugLabel, drugNameField, drugAmountLabel, drugAmountField, addDrugButton, prescribedDrugsArea, submitButton, cancelButton);
 
-        // Set the new scene
-        Scene drugScene = new Scene(drugLayout, 400, 600);
-        stageHandler.setScene(drugScene);
-        stageHandler.displayMessage("");
+        Scene prescriptionScene = new Scene(prescriptionLayout, 400, 600);
+        stageHandler.setScene(prescriptionScene);
     }
 }

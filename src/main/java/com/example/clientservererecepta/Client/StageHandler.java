@@ -4,6 +4,7 @@ import com.example.clientservererecepta.Client.Util.ShowAlert;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
@@ -12,13 +13,14 @@ import javafx.stage.Stage;
 public class StageHandler {
     private final Stage stage;
     private final ClientHandler clientHandler;
-    private TextArea messagesArea;
+    private final TextArea messagesArea;
 
     public StageHandler(Stage stage, ClientHandler clientHandler) {
         this.stage = stage;
         this.clientHandler = clientHandler;
         this.messagesArea = new TextArea();
         this.messagesArea.setEditable(false);
+        this.messagesArea.setPrefHeight(200);
     }
 
     public ClientHandler getClientHandler() {
@@ -42,7 +44,7 @@ public class StageHandler {
             return;
         }
         VBox layout = user.generateLayout();
-        stage.setScene(new Scene(layout, 400, 300));
+        stage.setScene(new Scene(layout, 600, 400)); // Wider scene for better layout
     }
 
     public void setScene(Scene scene) {
@@ -53,30 +55,38 @@ public class StageHandler {
     }
 
     private VBox generateDefaultLayout() {
-        TextField login = new TextField();
-        login.setPromptText("Login");
+        displayMessage("");
+        Label titleLabel = new Label("Login to E-Prescription System");
+        titleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
 
-        TextField password = new TextField();
-        password.setPromptText("Password");
+        TextField loginField = new TextField();
+        loginField.setPromptText("Login");
+
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Password");
 
         Button loginButton = new Button("Login");
         loginButton.setOnAction(event -> {
-            if (isNumeric(login.getText()) && !login.getText().isEmpty() && !password.getText().isEmpty()) {
-                sendLoginData(login, password);
-            }else{
+            if (isNumeric(loginField.getText()) && !loginField.getText().isEmpty() && !passwordField.getText().isEmpty()) {
+                sendLoginData(loginField, passwordField);
+            } else {
                 ShowAlert.error("Please enter correct data");
             }
         });
 
-        return new VBox(10, messagesArea, login, password, loginButton);
+        VBox layout = new VBox(10, titleLabel, loginField, passwordField, loginButton, messagesArea);
+        layout.setPadding(new Insets(15));
+        layout.setSpacing(10);
+
+        return layout;
     }
 
-    private void sendLoginData(TextField login, TextField password) {
+    private void sendLoginData(TextField loginField, TextField passwordField) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponseNode = objectMapper.createObjectNode();
         jsonResponseNode.put("type", "login");
-        jsonResponseNode.put("login", login.getText());
-        jsonResponseNode.put("password",password.getText());
+        jsonResponseNode.put("login", loginField.getText());
+        jsonResponseNode.put("password", passwordField.getText());
 
         String loginData = jsonResponseNode.toString();
         if (!loginData.isBlank()) {
